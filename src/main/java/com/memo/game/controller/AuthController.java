@@ -39,44 +39,35 @@ public class AuthController {
     }
 
     @PostMapping("/api/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody AuthRequest registerRequest) {
+    public ResponseEntity<?> register(@RequestBody AuthRequest registerRequest) {
         Map<String, Object> responseMap = new HashMap<>();
-        boolean existingEmail = false;
-        boolean existingUsername = false;
-        boolean validEmailFormat = false;
         String email = registerRequest.getEmail();
         String userName = registerRequest.getUsername();
 
         if(gameService.getByEmail(email)!=null) {
-            existingEmail = true;
+            return ResponseEntity.badRequest().body("Existing email!");
         }
         if(gameService.getByUserName(userName)!=null) {
-            existingUsername = true;
-        }
-        if(!existingEmail && !existingUsername) {
-            Pattern pattern = Pattern.compile(EMAIL_REGEX);
-            Matcher matcher = pattern.matcher(email);
-            if(matcher.matches()) {
-                validEmailFormat = true;
-
-                UUID token = verificationTokenService.saveVerificationToken(email);
-                emailService.sendVerificationEmail(email, token);
-
-                String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
-                MemoUsers memoUser = new MemoUsers(userName, email, hashedPassword);
-                gameService.saveUser(memoUser);
-            }
+            return ResponseEntity.badRequest().body("Existing username!");
         }
 
-        responseMap.put("existingUsername", existingUsername);
-        responseMap.put("existingEmail", existingEmail);
-        responseMap.put("validEmailFormat", validEmailFormat);
-        return ResponseEntity.ok(responseMap);
+        Pattern pattern = Pattern.compile(EMAIL_REGEX);
+        Matcher matcher = pattern.matcher(email);
+        if(matcher.matches()) {
+            UUID token = verificationTokenService.saveVerificationToken(email);
+            //emailService.sendVerificationEmail(email, token);
+
+            String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
+            MemoUsers memoUser = new MemoUsers(userName, email, hashedPassword);
+            gameService.saveUser(memoUser);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().body("Incorrect email format!");
+        }
     }
 
     @PostMapping("/api/signIn")
     public ResponseEntity<?> signIn(@RequestBody AuthRequest signInRequest) {
-        Map<String, Object> responseMap = new HashMap<>();
         UUID userId = null;
         MemoUsers user = null;
 
@@ -90,15 +81,12 @@ public class AuthController {
             if(BCrypt.checkpw(signInRequest.getPassword(), user.getPassword())) {
                 gameService.signIn(user.getId());
                 String token = tokenService.generateJwtToken(user);
-                responseMap.put("token", token);
-                return ResponseEntity.ok(responseMap);
+                return ResponseEntity.ok(token);
             } else {
-                responseMap.put("isPasswordCorrect", false);
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Password is incorrect!");
             }
         } else {
-            responseMap.put("isEmailOrUserNameCorrect", false);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseMap);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email or username is incorrect!");
         }
     }
 
