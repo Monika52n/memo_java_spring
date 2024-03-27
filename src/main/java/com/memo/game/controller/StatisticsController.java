@@ -44,10 +44,17 @@ public class StatisticsController {
         }
 
         int totalItems = memoSingleGameService.getTotalGamesCountByUserId(userId);
+        int totalPages;
+        if(totalItems % size == 0) {
+            totalPages = (totalItems/size);
+        } else {
+            totalPages = (totalItems/size)+1;
+        }
+
         if(size<=0 || size>totalItems) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: size");
         }
-        if(page<=0 || page>(totalItems/size)+1) {
+        if(page<=0 || page>totalPages) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
         }
 
@@ -57,7 +64,7 @@ public class StatisticsController {
         responseMap.put("currentPage", page);
         responseMap.put("itemsPerPage", size);
         responseMap.put("totalItems", totalItems);
-        responseMap.put("totalPages", (totalItems/size)+1);
+        responseMap.put("totalPages", totalPages);
         responseMap.put("data", responseList);
         return ResponseEntity.ok(responseMap);
     }
