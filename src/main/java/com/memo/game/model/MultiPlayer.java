@@ -2,45 +2,20 @@ package com.memo.game.model;
 
 import java.util.*;
 
-public class MultiPlayer {
-    private UUID playId;
-    private final int[] board;
-    private final boolean[] isGuessedBoard;
-    private int firstCardIndex = -1;
-    private boolean won = false;
-    private boolean isGameOver = false;
-    private boolean arePreviousCardsequal = false;
-    UUID player1Id;
-    UUID player2Id;
-    boolean isPlayer1sTurn = true;
-
-    int player1GuessedCards = 0;
-    int player2GuessedCards = 0;
+public class MultiPlayer extends MemoGame {
+    private UUID player1Id;
+    private UUID player2Id;
+    private boolean isPlayer1sTurn = true;
+    private int player1GuessedCards = 0;
+    private int player2GuessedCards = 0;
+    private String winner = "draw";
 
     public MultiPlayer(int numberOfPairs, UUID player1Id, UUID player2Id) {
         board = new int[numberOfPairs*2];
         this.player1Id = player1Id;
         this.player2Id = player2Id;
 
-        isGuessedBoard = new boolean[numberOfPairs*2];
-        int index = 0;
-        for(int i=1; i<=numberOfPairs; i++) {
-            isGuessedBoard[index]=false;
-            board[index++] = i;
-            isGuessedBoard[index]=false;
-            board[index++] = i;
-        }
-
-        // Shuffle the array using Fisher-Yates algorithm
-        Random random = new Random();
-        for (int i = board.length - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            int temp = board[i];
-            board[i] = board[j];
-            board[j] = temp;
-        }
-
-        playId = UUID.randomUUID();
+        configGame(numberOfPairs);
     }
 
     public Map<Integer, Integer> getCard(UUID player, int index) {
@@ -49,21 +24,7 @@ public class MultiPlayer {
             return new HashMap<>();
         }
 
-        if(index<0 || index>= board.length) {
-            throw new ArrayIndexOutOfBoundsException("Index " + index + " is out of bounds for array length " + board.length);
-        }
-        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
-        if (firstCardIndex == -1) {
-            map.put(index, getFirstCard(index));
-        } else {
-            if(firstCardIndex==index) {
-                throw new IllegalArgumentException("The index is the same as previous.");
-            }
-            Tuple<Integer, Integer> values = getSecondAndFirstCard(index);
-            map.put(firstCardIndex, values.getFirst());
-            map.put(index, values.getSecond());
-            firstCardIndex = -1;
-        }
+        Map<Integer, Integer> map = getOneCard(index);
 
         if(arePreviousCardsequal) {
             if(isPlayer1sTurn) {
@@ -76,20 +37,53 @@ public class MultiPlayer {
         return(map);
     }
 
-    private int getFirstCard(int index1) {
-        this.firstCardIndex = index1;
-        arePreviousCardsequal = false;
-        return board[index1];
+    @Override
+    protected void gameEnded() {
+        isGameOver=true;
+        for (boolean guessedCards : isGuessedBoard) {
+            if (!guessedCards) {
+                isGameOver = false;
+                break;
+            }
+        }
+        if(isGameOver) {
+            if(player1GuessedCards>player2GuessedCards) {
+                winner = player1Id.toString();
+            } else if(player1GuessedCards<player2GuessedCards) {
+                winner = player2Id.toString();
+            }
+        }
     }
 
-    private Tuple<Integer, Integer> getSecondAndFirstCard(int index2) {
-        if(board[firstCardIndex]==board[index2]) {
-            isGuessedBoard[firstCardIndex] = true;
-            isGuessedBoard[index2] = true;
-            arePreviousCardsequal=true;
-        } else {
-            arePreviousCardsequal=false;
-        }
-        return (new Tuple<Integer, Integer>(board[firstCardIndex], board[index2]));
+    public String getWinner() {
+        return winner;
+    }
+
+    public int getPlayer1GuessedCards() {
+        return player1GuessedCards;
+    }
+
+    public int getPlayer2GuessedCards() {
+        return  player2GuessedCards;
+    }
+
+    public UUID getPlayer1Id() {
+        return player1Id;
+    }
+
+    public UUID getPlayer2Id() {
+        return player2Id;
+    }
+
+    public void setPlayer1Id(UUID player1Id) {
+        this.player1Id = player1Id;
+    }
+
+    public void setPlayer2Id(UUID player2Id) {
+        this.player2Id = player2Id;
+    }
+
+    public int getNumberOfPairs() {
+       return board.length;
     }
 }
