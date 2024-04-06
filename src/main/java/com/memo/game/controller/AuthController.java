@@ -23,16 +23,13 @@ public class AuthController {
     private final MemoUsersService gameService;
     private final TokenService tokenService;
     private final TokenBlacklistService tokenBlacklistService;
-    private final VerificationTokenService verificationTokenService;
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
     public AuthController(MemoUsersService gameService, TokenService tokenService,
-                            TokenBlacklistService tokenBlacklistService,
-                            VerificationTokenService verificationTokenService) {
+                            TokenBlacklistService tokenBlacklistService) {
         this.gameService=gameService;
         this.tokenService=tokenService;
         this.tokenBlacklistService = tokenBlacklistService;
-        this.verificationTokenService = verificationTokenService;
     }
 
     @PostMapping("/api/register")
@@ -51,8 +48,6 @@ public class AuthController {
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         Matcher matcher = pattern.matcher(email);
         if(matcher.matches()) {
-            UUID token = verificationTokenService.saveVerificationToken(email);
-
             String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
             MemoUsers memoUser = new MemoUsers(userName, email, hashedPassword);
             gameService.saveUser(memoUser);
