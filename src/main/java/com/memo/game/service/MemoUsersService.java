@@ -44,6 +44,17 @@ public class MemoUsersService {
         }
     }
 
+    public boolean isSignedIn(UUID userId) {
+        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
+        if(userOptional.isPresent()) {
+            MemoUsers user = userOptional.get();
+            if(user.isSignedIn()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public boolean signOut(UUID userId) {
         Optional<MemoUsers> userOptional = gameRepository.findById(userId);
         if (userOptional.isPresent()) {
