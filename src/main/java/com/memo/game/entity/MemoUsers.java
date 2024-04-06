@@ -62,4 +62,8 @@ public class MemoUsers {
     public void setSignedIn(boolean signedIn) {
         this.signedIn = signedIn;
     }
+
+    public boolean isSignedIn() {
+        return signedIn;
+    }
 }
