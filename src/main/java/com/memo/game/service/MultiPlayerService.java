@@ -36,34 +36,19 @@ public class MultiPlayerService {
         return game;
     }
 
-    /*public synchronized MultiPlayer leaveGame(UUID player) {
-
-
-        String gameId = getGameByPlayer(player) != null ? getGameByPlayer(player).getGameId() : null;
+    public synchronized MultiPlayer leaveGame(UUID player) {
+        UUID gameId = getGameByPlayer(player) != null ? getGameByPlayer(player).getPlayId() : null;
         if (gameId != null) {
             waitingPlayers.remove(player);
-            TicTacToe game = games.get(gameId);
-            if (player.equals(game.getPlayer1())) {
-                if (game.getPlayer2() != null) {
-                    game.setPlayer1(game.getPlayer2());
-                    game.setPlayer2(null);
-                    game.setGameState(GameState.WAITING_FOR_PLAYER);
-                    game.setBoard(new String[3][3]);
-                    waitingPlayers.put(game.getPlayer1(), game.getGameId());
-                } else {
-                    games.remove(gameId);
-                    return null;
-                }
-            } else if (player.equals(game.getPlayer2())) {
-                game.setPlayer2(null);
-                game.setGameState(GameState.WAITING_FOR_PLAYER);
-                game.setBoard(new String[3][3]);
-                waitingPlayers.put(game.getPlayer1(), game.getGameId());
+            MultiPlayer game = getGame(gameId);
+            game.playerLeaves(player);
+            if(game.getIsGameOver()) {
+                games.remove(game);
             }
             return game;
         }
         return null;
-    }*/
+    }
 
     public MultiPlayer getGameByPlayer(UUID player) {
         return games.stream().filter(game -> game.getPlayer2Id().equals(player)

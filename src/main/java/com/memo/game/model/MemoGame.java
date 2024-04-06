@@ -5,7 +5,7 @@ import java.util.*;
 public abstract class MemoGame {
     protected UUID playId;
     protected int[] board;
-    protected boolean[] isGuessedBoard;
+    protected Boolean[] isGuessedBoard;
     protected final Timer timer = new Timer();
     protected int firstCardIndex = -1;
     protected boolean isGameOver = false;
@@ -16,7 +16,7 @@ public abstract class MemoGame {
             throw new IllegalArgumentException("Number of pairs must be positive.");
         }
         board = new int[numberOfPairs*2];
-        isGuessedBoard = new boolean[numberOfPairs*2];
+        isGuessedBoard = new Boolean[numberOfPairs*2];
         int index = 0;
         for(int i=1; i<=numberOfPairs; i++) {
             isGuessedBoard[index]=false;
