@@ -42,7 +42,7 @@ public class MultiPlayerService {
             waitingPlayers.remove(player);
             MultiPlayer game = getGame(gameId);
             game.playerLeaves(player);
-            if(game.getIsGameOver()) {
+            if(game.isGameOver()) {
                 games.remove(game);
             }
             return game;
@@ -58,5 +58,10 @@ public class MultiPlayerService {
 
     public MultiPlayer getGame(UUID gameId) {
         return games.stream().filter(game -> game.getPlayId().equals(gameId)).findFirst().orElse(null);
+    }
+
+    public void removeGame(UUID gameId) {
+        MultiPlayer game = getGame(gameId);
+        games.remove(game);
     }
 }

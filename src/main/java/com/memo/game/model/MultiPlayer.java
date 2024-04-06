@@ -96,6 +96,14 @@ public class MultiPlayer extends MemoGame {
        return board.length;
     }
 
+    public boolean isPlayer1sTurn() {
+        return isPlayer1sTurn;
+    }
+
+    public boolean isGameStarted() {
+        return  isGameStarted;
+    }
+
     public void playerLeaves(UUID player) {
         if(isGameStarted) {
             if(player.equals(player1Id)) {
@@ -118,5 +126,10 @@ public class MultiPlayer extends MemoGame {
                 player2Id = null;
             }
         }
+    }
+
+    public boolean isPlayersTurn(UUID player) {
+        return (isPlayer1sTurn && player.equals(player1Id)) ||
+                player.equals(player2Id);
     }
 }

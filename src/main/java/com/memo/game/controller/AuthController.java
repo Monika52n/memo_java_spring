@@ -86,13 +86,11 @@ public class AuthController {
 
     @PostMapping("/api/signOut")
     public ResponseEntity<Void> signOut(HttpServletRequest request) {
-        System.out.println("xd");
         String token = tokenService.extractTokenFromRequest(request);
         if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.badRequest().build();
         } else {
             gameService.signOut(tokenService.extractUserIdFromToken(token));
-            System.out.println("here" + tokenService.extractUserIdFromToken(token));
             tokenBlacklistService.addToBlacklist(token);
             return ResponseEntity.noContent().build();
         }
