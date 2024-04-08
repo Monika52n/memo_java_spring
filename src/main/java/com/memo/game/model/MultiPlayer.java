@@ -132,4 +132,17 @@ public class MultiPlayer extends MemoGame {
         return (isPlayer1sTurn && player.equals(player1Id)) ||
                 player.equals(player2Id);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MultiPlayer that = (MultiPlayer) o;
+        return Objects.equals(playId, that.getPlayId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playId);
+    }
 }
