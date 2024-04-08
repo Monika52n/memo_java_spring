@@ -2,6 +2,7 @@ package com.memo.game.dto;
 
 import com.memo.game.model.MultiPlayer;
 
+import java.util.Map;
 import java.util.UUID;
 
 public class MultiPlayerMessage implements Message {
@@ -17,6 +18,7 @@ public class MultiPlayerMessage implements Message {
     private UUID sender;
     private boolean isGameStarted;
     private boolean isGameOver;
+    private Map<Integer,Integer> lastMove;
 
     public MultiPlayerMessage () {
     }
@@ -130,5 +132,13 @@ public class MultiPlayerMessage implements Message {
 
     public void setIndex(int index) {
         this.index = index;
+    }
+
+    public Map<Integer, Integer> getLastMove() {
+        return lastMove;
+    }
+
+    public void setLastMove(Map<Integer, Integer> lastMove) {
+        this.lastMove = lastMove;
     }
 }

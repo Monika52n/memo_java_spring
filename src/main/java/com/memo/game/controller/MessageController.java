@@ -1,4 +1,4 @@
-package com.memo.game.config;
+package com.memo.game.controller;
 
 import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
@@ -16,6 +16,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -48,6 +50,7 @@ public class MessageController {
     @MessageMapping("/game.join")
     @SendTo("/topic/game.state")
     public Object joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
+        System.out.println("help");
         MultiPlayer game = multiPlayerService.joinGame(message.getPlayer(), message.getNumOfPairs());
         if (game == null) {
             MultiPlayerMessage errorMessage = new MultiPlayerMessage();
@@ -78,6 +81,11 @@ public class MessageController {
             gameMessage.setType("game.left");
             messagingTemplate.convertAndSend("/topic/game." + (game.getPlayId()).toString(), gameMessage);
         }
+    }
+
+    @MessageMapping("/")
+    public void test(@Payload int message) {
+        System.out.println(message);
     }
 
     /**
@@ -111,10 +119,11 @@ public class MessageController {
         }
 
         if (game.isPlayersTurn(player)) {
-            game.getCard(player, index);
+            Map<Integer, Integer> lastMove = game.getCard(player, index);
 
             MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game);
             gameStateMessage.setType("game.move");
+            gameStateMessage.setLastMove(lastMove);
             this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameStateMessage);
 
             if (game.isGameOver()) {
@@ -126,16 +135,20 @@ public class MessageController {
         }
     }
 
-    /*@EventListener
+    @EventListener
     public void SessionDisconnectEvent(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        String gameId = headerAccessor.getSessionAttributes().get("gameId").toString();
-        String player = headerAccessor.getSessionAttributes().get("player").toString();
-        TicTacToe game = ticTacToeManager.getGame(gameId);
+        UUID gameId = (UUID) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("gameId");
+        UUID player = (UUID) headerAccessor.getSessionAttributes().get("player");
+
+        MultiPlayer game = multiPlayerService.getGame(gameId);
+
         if (game != null) {
-            if (game.getPlayer1().equals(player)) {
-                game.setPlayer1(null);
-                if (game.getPlayer2() != null) {
+            game.playerLeaves(player);
+
+            /*if (game.getPlayer1Id().equals(player)) {
+                game.setPlayer1Id(null);
+                if (game.getPlayer2Id() != null) {
                     game.setGameState(GameState.PLAYER2_WON);
                     game.setWinner(game.getPlayer2());
                 } else {
@@ -149,13 +162,13 @@ public class MessageController {
                 } else {
                     ticTacToeManager.removeGame(gameId);
                 }
-            }
-            TicTacToeMessage gameMessage = gameToMessage(game);
+            }*/
+            MultiPlayerMessage gameMessage = gameToMessage(game);
             gameMessage.setType("game.gameOver");
             messagingTemplate.convertAndSend("/topic/game." + gameId, gameMessage);
-            ticTacToeManager.removeGame(gameId);
+            multiPlayerService.removeGame(gameId);
         }
-    }*/
+    }
 
     private MultiPlayerMessage gameToMessage(MultiPlayer game) {
         MultiPlayerMessage message = new MultiPlayerMessage();
