@@ -1,20 +1,31 @@
 package com.memo.game.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.memo.game.model.MultiPlayer;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class MultiPlayerMessage implements Message {
+    @JsonProperty("type")
     private String type;
+    @JsonProperty("gameId")
     private UUID gameId;
+    @JsonProperty("player1")
     private UUID player1;
+    @JsonProperty("player2")
     private UUID player2;
+    @JsonProperty("winner")
     private String winner;
+    @JsonProperty("isPlayer1sturn")
     private boolean isPlayer1sturn;
+    @JsonProperty("content")
     private String content;
+    @JsonProperty("board")
     private Integer[] board;
+    @JsonProperty("index")
     private int index;
+    @JsonProperty("sender")
     private UUID sender;
     private boolean isGameStarted;
     private boolean isGameOver;
