@@ -14,9 +14,10 @@ public class MultiPlayerService {
     private final List<UUID> waitingPlayers = new ArrayList<UUID>();
 
     public synchronized MultiPlayer joinGame(UUID player, int numberOfPairs) {
+        if(player==null || numberOfPairs<=0) return null;
         Optional<MultiPlayer> gameRet =
-                (games.stream().filter(game -> game.getPlayer1Id().equals(player)
-                || (game.getPlayer2Id() != null && game.getPlayer2Id().equals(player))).findFirst());
+                (games.stream().filter(game -> player.equals(game.getPlayer1Id())
+                || (game.getPlayer2Id() != null && player.equals(game.getPlayer2Id()))).findFirst());
         if (gameRet.isPresent()) {
             return gameRet.get();
         }
@@ -33,6 +34,13 @@ public class MultiPlayerService {
         MultiPlayer game = new MultiPlayer(numberOfPairs, player, null);
         games.add(game);
         waitingPlayers.add(player);
+
+        System.out.println(waitingPlayers);
+        for(MultiPlayer gameP : games) {
+            System.out.print(gameP.getPlayId() + " ");
+        }
+        System.out.print("\n");
+
         return game;
     }
 
@@ -51,13 +59,15 @@ public class MultiPlayerService {
     }
 
     public MultiPlayer getGameByPlayer(UUID player) {
-        return games.stream().filter(game -> game.getPlayer2Id().equals(player)
+        if(player==null) return null;
+        return games.stream().filter(game -> player.equals(game.getPlayer2Id())
                 || (game.getPlayer2Id() != null &&
-                game.getPlayer2Id().equals(player))).findFirst().orElse(null);
+                player.equals(game.getPlayer2Id()))).findFirst().orElse(null);
     }
 
     public MultiPlayer getGame(UUID gameId) {
-        return games.stream().filter(game -> game.getPlayId().equals(gameId)).findFirst().orElse(null);
+        if(gameId==null) return null;
+        return games.stream().filter(game -> gameId.equals(game.getPlayId())).findFirst().orElse(null);
     }
 
     public void removeGame(UUID gameId) {
