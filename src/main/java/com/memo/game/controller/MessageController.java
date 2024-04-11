@@ -5,6 +5,7 @@ import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
 import com.memo.game.model.MultiPlayer;
 import com.memo.game.service.MultiPlayerService;
+import com.memo.game.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -33,6 +34,8 @@ public class MessageController {
      */
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * Manager for the Tic-Tac-Toe games.
@@ -51,7 +54,9 @@ public class MessageController {
     @SendTo("/topic/game.state")
     public Object joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
         System.out.println("help");
-        MultiPlayer game = multiPlayerService.joinGame(message.getPlayer(), message.getNumOfPairs());
+
+        UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
+        MultiPlayer game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
         if (game == null) {
             MultiPlayerMessage errorMessage = new MultiPlayerMessage();
             errorMessage.setType("error");
@@ -59,7 +64,7 @@ public class MessageController {
             return errorMessage;
         }
         headerAccessor.getSessionAttributes().put("gameId", game.getPlayId());
-        headerAccessor.getSessionAttributes().put("player", message.getPlayer());
+        headerAccessor.getSessionAttributes().put("player", playerId);
 
         MultiPlayerMessage gameMessage = gameToMessage(game);
         gameMessage.setType("game.joined");
