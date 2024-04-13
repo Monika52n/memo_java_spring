@@ -53,7 +53,7 @@ public class MessageController {
     @MessageMapping("/game.join")
     @SendTo("/topic/game.state")
     public Object joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
-        System.out.println("help");
+        System.out.println("help" + message.getNumOfPairs());
 
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
         MultiPlayer game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
@@ -68,6 +68,7 @@ public class MessageController {
 
         MultiPlayerMessage gameMessage = gameToMessage(game);
         gameMessage.setType("game.joined");
+        gameMessage.setSender(message.getToken());
         return gameMessage;
     }
 
@@ -102,11 +103,12 @@ public class MessageController {
      */
     @MessageMapping("/game.move")
     public void makeMove(@Payload MultiPlayerMessage message) {
-        UUID player = message.getSender();
+        String token = message.getSenderToken();
+        UUID player = tokenService.extractUserIdFromToken(token);
         UUID gameId = message.getGameId();
         int index = message.getIndex();
         MultiPlayer game = multiPlayerService.getGame(gameId);
-
+        System.out.print("/topic/game." + gameId);
         if (game == null || game.isGameOver()) {
             MultiPlayerMessage errorMessage = new MultiPlayerMessage();
             errorMessage.setType("error");

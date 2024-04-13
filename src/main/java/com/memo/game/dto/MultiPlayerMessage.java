@@ -25,8 +25,8 @@ public class MultiPlayerMessage implements Message {
     private Integer[] board;
     @JsonProperty("index")
     private int index;
-    @JsonProperty("sender")
-    private UUID sender;
+    @JsonProperty("senderToken")
+    private String senderToken;
     private boolean isGameStarted;
     private boolean isGameOver;
     private Map<Integer,Integer> lastMove;
@@ -121,12 +121,12 @@ public class MultiPlayerMessage implements Message {
         this.content = content;
     }
 
-    public UUID getSender() {
-        return sender;
+    public String getSenderToken() {
+        return senderToken;
     }
 
-    public void setSender(UUID sender) {
-        this.sender = sender;
+    public void setSender(String senderToken) {
+        this.senderToken = senderToken;
     }
 
     public boolean isGameOver() {
