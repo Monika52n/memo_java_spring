@@ -28,7 +28,6 @@ public class MultiPlayer extends MemoGame {
             return new HashMap<>();
         }
 
-        isGameStarted = true;
         Map<Integer, Integer> map = getOneCard(index);
 
         if(arePreviousCardsequal) {
@@ -38,7 +37,9 @@ public class MultiPlayer extends MemoGame {
                 player2GuessedCards++;
             }
         }
-        isPlayer1sTurn = !isPlayer1sTurn;
+        if(firstCardIndex==-1) {
+            isPlayer1sTurn = !isPlayer1sTurn;
+        }
         return(map);
     }
 
@@ -88,12 +89,16 @@ public class MultiPlayer extends MemoGame {
         this.player1Id = player1Id;
     }
 
+    public void setGameStarted(boolean isGameStarted) {
+        this.isGameStarted=isGameStarted;
+    }
+
     public void setPlayer2Id(UUID player2Id) {
         this.player2Id = player2Id;
     }
 
     public int getNumberOfPairs() {
-       return board.length;
+       return board.length/2;
     }
 
     public boolean isPlayer1sTurn() {
@@ -144,5 +149,18 @@ public class MultiPlayer extends MemoGame {
     @Override
     public int hashCode() {
         return Objects.hash(playId);
+    }
+
+    @Override
+    public String toString() {
+        String player1 = "null";
+        String player2 = "null";
+        if(player1Id!=null) {
+            player1=player1Id.toString();
+        }
+        if(player2Id!=null) {
+            player2=player2Id.toString();
+        }
+        return ("(Player1:" + player1 + " Player2:" + player2 + " Pairs:" + getNumberOfPairs() + ")");
     }
 }

@@ -26,7 +26,9 @@ public class MultiPlayerService {
             if (game.getPlayer1Id() != null && game.getPlayer2Id() == null
                     && game.getNumberOfPairs()==numberOfPairs) {
                 game.setPlayer2Id(player);
+                game.setGameStarted(true);
                 //game.setGameState(GameState.PLAYER1_TURN);
+                printDebug();
                 return game;
             }
         }
@@ -35,15 +37,17 @@ public class MultiPlayerService {
         games.add(game);
         waitingPlayers.add(player);
 
-        System.out.println(waitingPlayers);
-        for(MultiPlayer gameP : games) {
-            System.out.print(gameP.getPlayId() + " ");
-        }
-        System.out.print("\n");
-
+        printDebug();
         return game;
     }
 
+    private void printDebug() {
+        System.out.println(waitingPlayers);
+        for(MultiPlayer gameP : games) {
+            System.out.print(gameP.toString() + " ");
+        }
+        System.out.print("\n");
+    }
     public synchronized MultiPlayer leaveGame(UUID player) {
         UUID gameId = getGameByPlayer(player) != null ? getGameByPlayer(player).getPlayId() : null;
         if (gameId != null) {
