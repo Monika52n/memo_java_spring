@@ -4,6 +4,7 @@ import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
 import com.memo.game.model.MultiPlayer;
+import com.memo.game.service.MemoUsersService;
 import com.memo.game.service.MultiPlayerService;
 import com.memo.game.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,8 @@ public class MessageController {
     private SimpMessagingTemplate messagingTemplate;
     @Autowired
     private TokenService tokenService;
+    @Autowired
+    private MemoUsersService memoUsersService;
 
     /**
      * Manager for the Tic-Tac-Toe games.
@@ -58,7 +61,7 @@ public class MessageController {
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
         MultiPlayer game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
         if (game == null) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage();
+            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
             errorMessage.setType("error");
             errorMessage.setContent("Cannot join");
             return errorMessage;
@@ -81,10 +84,13 @@ public class MessageController {
      */
     @MessageMapping("/game.leave")
     public void leaveGame(@Payload PlayerMessage message) {
-        MultiPlayer game = multiPlayerService.leaveGame(message.getPlayer());
+        UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
+        MultiPlayer game = multiPlayerService.leaveGame(playerId);
+        System.out.println("got message" + playerId);
         if (game != null) {
             MultiPlayerMessage gameMessage = gameToMessage(game);
             gameMessage.setType("game.left");
+            System.out.println("/topic/game." + game.getPlayId());
             messagingTemplate.convertAndSend("/topic/game." + (game.getPlayId()).toString(), gameMessage);
         }
     }
@@ -108,9 +114,9 @@ public class MessageController {
         UUID gameId = message.getGameId();
         int index = message.getIndex();
         MultiPlayer game = multiPlayerService.getGame(gameId);
-        System.out.print("/topic/game." + gameId);
+        System.out.println("/topic/game." + gameId);
         if (game == null || game.isGameOver()) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage();
+            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
             errorMessage.setType("error");
             errorMessage.setContent("Game not found or is already over.");
             this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
@@ -118,7 +124,7 @@ public class MessageController {
         }
 
         if (!game.isGameStarted()) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage();
+            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
             errorMessage.setType("error");
             errorMessage.setContent("Game is waiting for another player to join.");
             this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
@@ -128,7 +134,7 @@ public class MessageController {
         if (game.isPlayersTurn(player)) {
             Map<Integer, Integer> lastMove = game.getCard(player, index);
 
-            MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game);
+            MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game, memoUsersService);
             gameStateMessage.setType("game.move");
             gameStateMessage.setLastMove(lastMove);
             this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameStateMessage);
@@ -178,7 +184,7 @@ public class MessageController {
     }
 
     private MultiPlayerMessage gameToMessage(MultiPlayer game) {
-        MultiPlayerMessage message = new MultiPlayerMessage();
+        MultiPlayerMessage message = new MultiPlayerMessage(memoUsersService);
         message.setGameId(game.getPlayId());
         message.setPlayer1(game.getPlayer1Id());
         message.setPlayer2(game.getPlayer2Id());

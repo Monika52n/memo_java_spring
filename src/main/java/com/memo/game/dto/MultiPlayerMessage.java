@@ -1,24 +1,30 @@
 package com.memo.game.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.memo.game.entity.MemoUsers;
 import com.memo.game.model.MultiPlayer;
+import com.memo.game.service.MemoUsersService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class MultiPlayerMessage implements Message {
+    private MemoUsersService memoUsersService;
+    private UUID player1;
+    private UUID player2;
     @JsonProperty("type")
     private String type;
     @JsonProperty("gameId")
     private UUID gameId;
-    @JsonProperty("player1")
-    private UUID player1;
-    @JsonProperty("player2")
-    private UUID player2;
+    @JsonProperty("player1Name")
+    private String player1Name;
+    @JsonProperty("player2Name")
+    private String player2Name;
     @JsonProperty("winner")
     private String winner;
-    @JsonProperty("isPlayer1sturn")
-    private boolean isPlayer1sturn;
+    @JsonProperty("turn")
+    private String turn;
     @JsonProperty("content")
     private String content;
     @JsonProperty("board")
@@ -31,15 +37,27 @@ public class MultiPlayerMessage implements Message {
     private boolean isGameOver;
     private Map<Integer,Integer> lastMove;
 
-    public MultiPlayerMessage () {
+    public MultiPlayerMessage() {
+
     }
 
-    public MultiPlayerMessage(MultiPlayer game) {
+    public MultiPlayerMessage (MemoUsersService memoUsersService) {
+        this.memoUsersService = memoUsersService;
+    }
+
+    public MultiPlayerMessage(MultiPlayer game, MemoUsersService memoUsersService) {
+        this.memoUsersService = memoUsersService;
         this.gameId = game.getPlayId();
         this.player1 = game.getPlayer1Id();
         this.player2 = game.getPlayer2Id();
+        this.player1Name = memoUsersService.getUserNameById(player1);
+        this.player2Name = memoUsersService.getUserNameById(player1);
         this.winner = game.getWinner();
-        this.isPlayer1sturn = game.isPlayer1sTurn();
+        if(game.isPlayer1sTurn()) {
+            this.turn = this.player1Name;
+        } else {
+            this.turn = this.player2Name;
+        }
         this.board = game.getGuessedBoard();
         this.isGameStarted = game.isGameStarted();
         this.isGameOver = game.isGameOver();
@@ -75,6 +93,7 @@ public class MultiPlayerMessage implements Message {
 
     public void setPlayer1(UUID player1) {
         this.player1 = player1;
+        this.player1Name = memoUsersService.getUserNameById(player1);
     }
 
     public UUID getPlayer2() {
@@ -83,6 +102,7 @@ public class MultiPlayerMessage implements Message {
 
     public void setPlayer2(UUID player2) {
         this.player2 = player2;
+        this.player2Name = memoUsersService.getUserNameById(player2);
     }
 
     public String getWinner() {
@@ -93,12 +113,12 @@ public class MultiPlayerMessage implements Message {
         this.winner = winner;
     }
 
-    public boolean isPlayer1sTurn() {
-        return isPlayer1sturn;
-    }
-
-    public void setTurn(boolean turn) {
-        this.isPlayer1sturn = turn;
+    public void setTurn(boolean isPlayer1sTurn) {
+        if(isPlayer1sTurn) {
+            this.turn = player1Name;
+        } else {
+            this.turn = player2Name;
+        }
     }
 
     public Integer[] getBoard() {
