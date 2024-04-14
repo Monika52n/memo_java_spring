@@ -193,6 +193,8 @@ public class MessageController {
         message.setWinner(game.getWinner());
         message.setGameStarted(game.isGameStarted());
         message.setGameOver(game.isGameOver());
+        message.setPlayer1GuessedCards(game.getPlayer1GuessedCards());
+        message.setPlayer2GuessedCards(game.getPlayer2GuessedCards());
         return message;
     }
 }
