@@ -35,8 +35,10 @@ public class MultiPlayerMessage implements Message {
     private String senderToken;
     private boolean isGameStarted;
     private boolean isGameOver;
+    @JsonProperty("lastMove")
     private Map<Integer,Integer> lastMove;
-
+    private int player1GuessedCards;
+    private int player2GuessedCards;
     public MultiPlayerMessage() {
 
     }
@@ -51,8 +53,14 @@ public class MultiPlayerMessage implements Message {
         this.player1 = game.getPlayer1Id();
         this.player2 = game.getPlayer2Id();
         this.player1Name = memoUsersService.getUserNameById(player1);
-        this.player2Name = memoUsersService.getUserNameById(player1);
+        this.player2Name = memoUsersService.getUserNameById(player2);
         this.winner = game.getWinner();
+        if(winner!=null && player1!=null && winner.equals(player1.toString())) {
+            this.winner = player1Name;
+        }
+        if(winner!=null && player2!=null && winner.equals(player2.toString())) {
+            this.winner = player2Name;
+        }
         if(game.isPlayer1sTurn()) {
             this.turn = this.player1Name;
         } else {
@@ -61,6 +69,8 @@ public class MultiPlayerMessage implements Message {
         this.board = game.getGuessedBoard();
         this.isGameStarted = game.isGameStarted();
         this.isGameOver = game.isGameOver();
+        this.player1GuessedCards = game.getPlayer1GuessedCards();
+        this.player2GuessedCards = game.getPlayer2GuessedCards();
     }
 
     /**
@@ -87,17 +97,9 @@ public class MultiPlayerMessage implements Message {
         this.gameId = gameId;
     }
 
-    public UUID getPlayer1() {
-        return player1;
-    }
-
     public void setPlayer1(UUID player1) {
         this.player1 = player1;
         this.player1Name = memoUsersService.getUserNameById(player1);
-    }
-
-    public UUID getPlayer2() {
-        return player2;
     }
 
     public void setPlayer2(UUID player2) {
@@ -110,7 +112,14 @@ public class MultiPlayerMessage implements Message {
     }
 
     public void setWinner(String winner) {
-        this.winner = winner;
+        if(winner!=null && player1!=null && winner.equals(player1.toString())) {
+            this.winner = player1Name;
+        }
+        else if(winner!=null && player2!=null && winner.equals(player2.toString())) {
+            this.winner = player2Name;
+        } else {
+            this.winner = winner;
+        }
     }
 
     public void setTurn(boolean isPlayer1sTurn) {
@@ -171,5 +180,21 @@ public class MultiPlayerMessage implements Message {
 
     public void setLastMove(Map<Integer, Integer> lastMove) {
         this.lastMove = lastMove;
+    }
+
+    public void setPlayer1GuessedCards(int player1GuessedCards) {
+        this.player1GuessedCards = player1GuessedCards;
+    }
+
+    public void setPlayer2GuessedCards(int player2GuessedCards) {
+        this.player2GuessedCards = player2GuessedCards;
+    }
+
+    public int getPlayer1GuessedCards() {
+        return player1GuessedCards;
+    }
+
+    public int getPlayer2GuessedCards() {
+        return player2GuessedCards;
     }
 }
