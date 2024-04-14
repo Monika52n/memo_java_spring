@@ -31,6 +31,13 @@ public class MemoUsersService {
         return gameRepository.findByUserName(username);
     }
 
+    public String getUserNameById(UUID id) {
+        if(id!=null && gameRepository.findById(id).isPresent()) {
+            MemoUsers user = gameRepository.findById(id).get();
+            return user.getUserName();
+        }
+        return null;
+    }
     public boolean signIn(UUID userId) {
         Optional<MemoUsers> userOptional = gameRepository.findById(userId);
         if (userOptional.isPresent()) {

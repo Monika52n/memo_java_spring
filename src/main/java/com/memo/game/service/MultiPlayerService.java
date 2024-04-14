@@ -49,10 +49,9 @@ public class MultiPlayerService {
         System.out.print("\n");
     }
     public synchronized MultiPlayer leaveGame(UUID player) {
-        UUID gameId = getGameByPlayer(player) != null ? getGameByPlayer(player).getPlayId() : null;
-        if (gameId != null) {
+        MultiPlayer game = getGameByPlayer(player);
+        if (game != null) {
             waitingPlayers.remove(player);
-            MultiPlayer game = getGame(gameId);
             game.playerLeaves(player);
             if(game.isGameOver()) {
                 games.remove(game);
@@ -64,7 +63,7 @@ public class MultiPlayerService {
 
     public MultiPlayer getGameByPlayer(UUID player) {
         if(player==null) return null;
-        return games.stream().filter(game -> player.equals(game.getPlayer2Id())
+        return games.stream().filter(game -> player.equals(game.getPlayer1Id())
                 || (game.getPlayer2Id() != null &&
                 player.equals(game.getPlayer2Id()))).findFirst().orElse(null);
     }
