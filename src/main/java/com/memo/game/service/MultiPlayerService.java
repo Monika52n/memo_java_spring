@@ -1,6 +1,9 @@
 package com.memo.game.service;
 
+import com.memo.game.entity.MemoMultiGame;
 import com.memo.game.model.MultiPlayer;
+import com.memo.game.repo.MemoMultiGameRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,6 +15,13 @@ import java.util.UUID;
 public class MultiPlayerService {
     private final List<MultiPlayer> games = new ArrayList<MultiPlayer>();
     private final List<UUID> waitingPlayers = new ArrayList<UUID>();
+
+    private final MemoMultiGameRepository memoMultiGameRepository;
+
+    @Autowired
+    public MultiPlayerService(MemoMultiGameRepository memoMultiGameRepository) {
+        this.memoMultiGameRepository = memoMultiGameRepository;
+    }
 
     public synchronized MultiPlayer joinGame(UUID player, int numberOfPairs) {
         if(player==null || numberOfPairs<=0) return null;
@@ -76,5 +86,18 @@ public class MultiPlayerService {
     public void removeGame(UUID gameId) {
         MultiPlayer game = getGame(gameId);
         games.remove(game);
+    }
+
+    public void saveGame(MultiPlayer game) {
+        MemoMultiGame memoMultiGame = new MemoMultiGame(
+                game.getPlayId(),
+                game.getPlayer1Id(),
+                game.getPlayer2Id(),
+                game.getWinner(),
+                game.getNumberOfPairs(),
+                game.getPlayer1GuessedCards(),
+                game.getPlayer2GuessedCards()
+        );
+        memoMultiGameRepository.save(memoMultiGame);
     }
 }
