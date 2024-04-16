@@ -43,7 +43,8 @@ public class MessageController {
     /**
      * Manager for the Tic-Tac-Toe games.
      */
-    private final MultiPlayerService multiPlayerService = new MultiPlayerService();
+    @Autowired
+    private MultiPlayerService multiPlayerService;
 
     /**
      * Handles a request from a client to join a Tic-Tac-Toe game.
@@ -95,11 +96,6 @@ public class MessageController {
         }
     }
 
-    @MessageMapping("/")
-    public void test(@Payload int message) {
-        System.out.println(message);
-    }
-
     /**
      * Handles a request from a client to make a move in a Tic-Tac-Toe game.
      * If the move is valid, the game state is updated and sent to all subscribers of the game's topic.
@@ -115,7 +111,7 @@ public class MessageController {
         int index = message.getIndex();
         MultiPlayer game = multiPlayerService.getGame(gameId);
         System.out.println("/topic/game." + gameId);
-        if (game == null || game.isGameOver()) {
+        if (game == null) {
             MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
             errorMessage.setType("error");
             errorMessage.setContent("Game not found or is already over.");
@@ -142,6 +138,7 @@ public class MessageController {
             if (game.isGameOver()) {
                 MultiPlayerMessage gameOverMessage = gameToMessage(game);
                 gameOverMessage.setType("game.gameOver");
+                multiPlayerService.saveGame(game);
                 this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameOverMessage);
                 multiPlayerService.removeGame(gameId);
             }

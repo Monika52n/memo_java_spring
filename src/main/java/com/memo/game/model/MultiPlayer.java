@@ -30,13 +30,6 @@ public class MultiPlayer extends MemoGame {
 
         Map<Integer, Integer> map = getOneCard(index);
 
-        if(arePreviousCardsequal) {
-            if(isPlayer1sTurn) {
-                player1GuessedCards++;
-            } else {
-                player2GuessedCards++;
-            }
-        }
         if(firstCardIndex==-1) {
             isPlayer1sTurn = !isPlayer1sTurn;
         }
@@ -50,6 +43,13 @@ public class MultiPlayer extends MemoGame {
             if (!guessedCards) {
                 isGameOver = false;
                 break;
+            }
+        }
+        if(arePreviousCardsequal) {
+            if(isPlayer1sTurn) {
+                player1GuessedCards++;
+            } else {
+                player2GuessedCards++;
             }
         }
         if(player1GuessedCards >= isGuessedBoard.length/2+1 ||

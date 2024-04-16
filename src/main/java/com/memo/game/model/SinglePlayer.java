@@ -73,7 +73,8 @@ public class SinglePlayer extends MemoGame {
             isGameOver = true;
         }
     }
-    private void saveGame() {
+
+    public void saveGame() {
         gameSaver.saveGameAfterEnded(playId, won, timeRemaining, board.length/2, initialTime);
     }
 }
