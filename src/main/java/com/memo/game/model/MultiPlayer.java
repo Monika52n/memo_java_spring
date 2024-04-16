@@ -28,17 +28,11 @@ public class MultiPlayer extends MemoGame {
             return new HashMap<>();
         }
 
-        isGameStarted = true;
         Map<Integer, Integer> map = getOneCard(index);
 
-        if(arePreviousCardsequal) {
-            if(isPlayer1sTurn) {
-                player1GuessedCards++;
-            } else {
-                player2GuessedCards++;
-            }
+        if(firstCardIndex==-1) {
+            isPlayer1sTurn = !isPlayer1sTurn;
         }
-        isPlayer1sTurn = !isPlayer1sTurn;
         return(map);
     }
 
@@ -49,6 +43,13 @@ public class MultiPlayer extends MemoGame {
             if (!guessedCards) {
                 isGameOver = false;
                 break;
+            }
+        }
+        if(arePreviousCardsequal) {
+            if(isPlayer1sTurn) {
+                player1GuessedCards++;
+            } else {
+                player2GuessedCards++;
             }
         }
         if(player1GuessedCards >= isGuessedBoard.length/2+1 ||
@@ -88,12 +89,24 @@ public class MultiPlayer extends MemoGame {
         this.player1Id = player1Id;
     }
 
+    public void setGameStarted(boolean isGameStarted) {
+        this.isGameStarted=isGameStarted;
+    }
+
     public void setPlayer2Id(UUID player2Id) {
         this.player2Id = player2Id;
     }
 
     public int getNumberOfPairs() {
-       return board.length;
+       return board.length/2;
+    }
+
+    public boolean isPlayer1sTurn() {
+        return isPlayer1sTurn;
+    }
+
+    public boolean isGameStarted() {
+        return  isGameStarted;
     }
 
     public void playerLeaves(UUID player) {
@@ -118,5 +131,36 @@ public class MultiPlayer extends MemoGame {
                 player2Id = null;
             }
         }
+    }
+
+    public boolean isPlayersTurn(UUID player) {
+        return (isPlayer1sTurn && player.equals(player1Id)) ||
+                player.equals(player2Id);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MultiPlayer that = (MultiPlayer) o;
+        return Objects.equals(playId, that.getPlayId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playId);
+    }
+
+    @Override
+    public String toString() {
+        String player1 = "null";
+        String player2 = "null";
+        if(player1Id!=null) {
+            player1=player1Id.toString();
+        }
+        if(player2Id!=null) {
+            player2=player2Id.toString();
+        }
+        return ("(Player1:" + player1 + " Player2:" + player2 + " Pairs:" + getNumberOfPairs() + ")");
     }
 }

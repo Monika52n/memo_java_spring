@@ -41,7 +41,7 @@ public abstract class MemoGame {
         return playId;
     }
 
-    public boolean getIsGameOver() {return isGameOver;}
+    public boolean isGameOver() {return isGameOver;}
 
     public Integer[] getGuessedBoard() {
         Integer[] guessedBoard = new Integer[board.length];

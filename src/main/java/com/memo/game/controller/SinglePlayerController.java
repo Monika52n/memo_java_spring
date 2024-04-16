@@ -101,7 +101,7 @@ public class SinglePlayerController {
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("cards", cards);
         responseMap.put("equals", singleplayer.getArePreviousCardsequal());
-        responseMap.put("ended", singleplayer.getIsGameOver());
+        responseMap.put("ended", singleplayer.isGameOver());
         responseMap.put("won", singleplayer.getWon());
         responseMap.put("guessedBoard", singleplayer.getGuessedBoard());
 

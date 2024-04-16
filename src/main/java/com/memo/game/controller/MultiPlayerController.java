@@ -1,6 +1,7 @@
 package com.memo.game.controller;
 
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,15 +15,15 @@ import java.util.Arrays;
 public class MultiPlayerController {
 
     @GetMapping
-    public ModelAndView index() {
+    public ResponseEntity<?> index() {
         return memoGame(8);
     }
 
     @RequestMapping("/index")
-    public ModelAndView memoGame(@RequestBody Integer numOfPairs) {
-        ModelAndView modelAndView = new ModelAndView("index");
+    public ResponseEntity<?> memoGame(@RequestBody Integer numOfPairs) {
+        //ModelAndView modelAndView = new ModelAndView("index");
         Integer[] board = new Integer[numOfPairs];
-        modelAndView.addObject("board", board);
-        return modelAndView;
+        //modelAndView.addObject("board", board);
+        return ResponseEntity.ok(board);
     }
 }
