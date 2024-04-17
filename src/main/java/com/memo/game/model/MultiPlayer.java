@@ -52,8 +52,8 @@ public class MultiPlayer extends MemoGame {
                 player2GuessedCards++;
             }
         }
-        if(player1GuessedCards >= isGuessedBoard.length/2+1 ||
-                player2GuessedCards >= isGuessedBoard.length/2+1) {
+        if(player1GuessedCards >= getNumberOfPairs()/2+1 ||
+                player2GuessedCards >= getNumberOfPairs()/2+1) {
             isGameOver = true;
         }
         if(isGameOver) {
