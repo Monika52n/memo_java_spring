@@ -39,9 +39,7 @@ public class MultiPlayerMessage implements Message {
     private Map<Integer,Integer> lastMove;
     private int player1GuessedCards;
     private int player2GuessedCards;
-    public MultiPlayerMessage() {
-
-    }
+    public MultiPlayerMessage() {}
 
     public MultiPlayerMessage (MemoUsersService memoUsersService) {
         this.memoUsersService = memoUsersService;
