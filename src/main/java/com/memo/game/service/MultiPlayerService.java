@@ -64,6 +64,9 @@ public class MultiPlayerService {
             waitingPlayers.remove(player);
             game.playerLeaves(player);
             if(game.isGameOver()) {
+                if(game.isGameStarted()) {
+                    saveGame(game);
+                }
                 games.remove(game);
             }
             return game;

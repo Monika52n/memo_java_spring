@@ -92,12 +92,13 @@ public class StatisticsController {
     }
 
     @PostMapping("/api/multiPlayerStatistics")
-    public ResponseEntity<?> getLeaderBoard(HttpServletRequest request) {
+    public ResponseEntity<?> getLeaderBoard(HttpServletRequest request,
+                @RequestParam(defaultValue = "8") int pairs) {
         String token = tokenService.extractTokenFromRequest(request);
         if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<Object> leaderboard = multiPlayerStatService.getLeaderBoard();
+        List<Object> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
         return ResponseEntity.ok(leaderboard);
     }
 }

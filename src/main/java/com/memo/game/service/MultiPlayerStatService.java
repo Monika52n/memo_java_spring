@@ -20,11 +20,11 @@ public class MultiPlayerStatService {
         this.memoUsersRepository = memoUsersRepository;
     }
 
-    private HashMap<String, Integer> getUsersWithWins() {
+    private HashMap<String, Integer> getUsersWithWins(int pairs) {
         HashMap<String, Integer> leaderBoard = new HashMap<>();
         List<MemoUsers> users = memoUsersRepository.findAll();
         for(MemoUsers user : users) {
-            Integer wins = memoUsersRepository.getWins((user.getId()).toString());
+            Integer wins = memoUsersRepository.getWins((user.getId()).toString(), pairs);
             leaderBoard.put(user.getUserName(), wins);
         }
         return leaderBoard;
@@ -50,10 +50,8 @@ public class MultiPlayerStatService {
         return rankedLeaderBoard;
     }
 
-    public List<Object> getLeaderBoard() {
-        HashMap<String, Integer> leaderBoard = getUsersWithWins();
-
-        leaderBoard = leaderBoard.entrySet()
+    HashMap<String, Integer> sortLeaderboard(HashMap<String, Integer> leaderboard) {
+        return leaderboard = leaderboard.entrySet()
                 .stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(
@@ -62,7 +60,11 @@ public class MultiPlayerStatService {
                         (e1, e2) -> e1,
                         LinkedHashMap::new
                 ));
+    }
 
-        return makeRankedLeaderBoard(leaderBoard);
+    public List<Object> getLeaderBoard(int pairs) {
+        HashMap<String, Integer> leaderboard= getUsersWithWins(pairs);
+        leaderboard= sortLeaderboard(leaderboard);
+        return makeRankedLeaderBoard(leaderboard);
     }
 }

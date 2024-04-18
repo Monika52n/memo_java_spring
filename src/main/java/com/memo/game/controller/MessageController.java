@@ -9,6 +9,8 @@ import com.memo.game.service.MultiPlayerService;
 import com.memo.game.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -57,23 +59,29 @@ public class MessageController {
     @MessageMapping("/game.join")
     @SendTo("/topic/game.state")
     public Object joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
-        System.out.println("help" + message.getNumOfPairs());
-
+        MultiPlayerMessage responseMessage;
+        if (!tokenService.isTokenValid(message.getToken())) {
+            responseMessage = new MultiPlayerMessage(memoUsersService);
+            responseMessage.setType("error");
+            responseMessage.setType("Unauthorized");
+            return responseMessage;
+        }
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
+
         MultiPlayer game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
         if (game == null) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
-            errorMessage.setType("error");
-            errorMessage.setContent("Cannot join");
-            return errorMessage;
+            responseMessage = new MultiPlayerMessage(memoUsersService);
+            responseMessage.setType("error");
+            responseMessage.setContent("Cannot join");
+            return responseMessage;
         }
         headerAccessor.getSessionAttributes().put("gameId", game.getPlayId());
         headerAccessor.getSessionAttributes().put("player", playerId);
 
-        MultiPlayerMessage gameMessage = gameToMessage(game);
-        gameMessage.setType("game.joined");
-        gameMessage.setSender(message.getToken());
-        return gameMessage;
+        responseMessage = gameToMessage(game);
+        responseMessage.setType("game.joined");
+        responseMessage.setSender(message.getToken());
+        return responseMessage;
     }
 
     /**
@@ -87,11 +95,9 @@ public class MessageController {
     public void leaveGame(@Payload PlayerMessage message) {
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
         MultiPlayer game = multiPlayerService.leaveGame(playerId);
-        System.out.println("got message" + playerId);
         if (game != null) {
             MultiPlayerMessage gameMessage = gameToMessage(game);
             gameMessage.setType("game.left");
-            System.out.println("/topic/game." + game.getPlayId());
             messagingTemplate.convertAndSend("/topic/game." + (game.getPlayId()).toString(), gameMessage);
         }
     }
@@ -147,6 +153,7 @@ public class MessageController {
 
     @EventListener
     public void SessionDisconnectEvent(SessionDisconnectEvent event) {
+        System.out.println("xd");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         UUID gameId = (UUID) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("gameId");
         UUID player = (UUID) headerAccessor.getSessionAttributes().get("player");
