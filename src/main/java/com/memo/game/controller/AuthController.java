@@ -95,4 +95,23 @@ public class AuthController {
             return ResponseEntity.noContent().build();
         }
     }
+
+    @PostMapping("api/getUserInfo")
+    public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
+        String token = tokenService.extractTokenFromRequest(request);
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        UUID userId = tokenService.extractUserIdFromToken(token);
+        if(userId==null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
+        }
+        String userName = gameService.getUserNameById(userId);
+
+        HashMap<String, Object> responseMap = new HashMap<>();
+        responseMap.put("userId", userId);
+        responseMap.put("userName", userName);
+        return ResponseEntity.ok(responseMap);
+    }
 }

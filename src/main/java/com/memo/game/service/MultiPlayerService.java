@@ -69,6 +69,7 @@ public class MultiPlayerService {
                 }
                 games.remove(game);
             }
+            printDebug();
             return game;
         }
         return null;
