@@ -116,7 +116,6 @@ public class MessageController {
         UUID gameId = message.getGameId();
         int index = message.getIndex();
         MultiPlayer game = multiPlayerService.getGame(gameId);
-        System.out.println("/topic/game." + gameId);
         if (game == null) {
             MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
             errorMessage.setType("error");

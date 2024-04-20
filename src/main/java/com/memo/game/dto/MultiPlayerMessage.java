@@ -100,6 +100,14 @@ public class MultiPlayerMessage implements Message {
         this.player1Name = memoUsersService.getUserNameById(player1);
     }
 
+    public UUID getPlayer1() {
+        return player1;
+    }
+
+    public UUID getPlayer2() {
+        return player2;
+    }
+
     public void setPlayer2(UUID player2) {
         this.player2 = player2;
         this.player2Name = memoUsersService.getUserNameById(player2);
