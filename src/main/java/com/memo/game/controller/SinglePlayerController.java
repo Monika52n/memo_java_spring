@@ -104,6 +104,7 @@ public class SinglePlayerController {
         responseMap.put("ended", singleplayer.isGameOver());
         responseMap.put("won", singleplayer.getWon());
         responseMap.put("guessedBoard", singleplayer.getGuessedBoard());
+        responseMap.put("remainingTime", singleplayer.getTimeRemaining());
 
         return ResponseEntity.ok(responseMap);
     }
