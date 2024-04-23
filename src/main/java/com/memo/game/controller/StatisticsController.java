@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memo.game.entity.MemoSingleGame;
 import com.memo.game.service.MemoSingleGameService;
+import com.memo.game.service.MultiPlayerStatService;
 import com.memo.game.service.SinglePlayerCreateStatService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,11 +24,13 @@ import java.util.List;
 public class StatisticsController {
     private final MemoSingleGameService memoSingleGameService;
     private final TokenService tokenService;
+    private final MultiPlayerStatService multiPlayerStatService;
 
     @Autowired
-    public StatisticsController(MemoSingleGameService memoSingleGameService, TokenService tokenService) {
+    public StatisticsController(MemoSingleGameService memoSingleGameService, TokenService tokenService, MultiPlayerStatService multiPlayerStatService) {
         this.memoSingleGameService = memoSingleGameService;
         this.tokenService = tokenService;
+        this.multiPlayerStatService = multiPlayerStatService;
     }
 
     @PostMapping("/api/singlePlayerStatistics/all")
@@ -86,5 +89,16 @@ public class StatisticsController {
         SinglePlayerCreateStatService singlePlayerCreateStatService
                 = new SinglePlayerCreateStatService(games);
         return ResponseEntity.ok(singlePlayerCreateStatService.getList());
+    }
+
+    @PostMapping("/api/multiPlayerStatistics")
+    public ResponseEntity<?> getLeaderBoard(HttpServletRequest request,
+                @RequestParam(defaultValue = "8") int pairs) {
+        String token = tokenService.extractTokenFromRequest(request);
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        List<Object> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
+        return ResponseEntity.ok(leaderboard);
     }
 }

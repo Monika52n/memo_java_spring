@@ -39,9 +39,7 @@ public class MultiPlayerMessage implements Message {
     private Map<Integer,Integer> lastMove;
     private int player1GuessedCards;
     private int player2GuessedCards;
-    public MultiPlayerMessage() {
-
-    }
+    public MultiPlayerMessage() {}
 
     public MultiPlayerMessage (MemoUsersService memoUsersService) {
         this.memoUsersService = memoUsersService;
@@ -100,6 +98,14 @@ public class MultiPlayerMessage implements Message {
     public void setPlayer1(UUID player1) {
         this.player1 = player1;
         this.player1Name = memoUsersService.getUserNameById(player1);
+    }
+
+    public UUID getPlayer1() {
+        return player1;
+    }
+
+    public UUID getPlayer2() {
+        return player2;
     }
 
     public void setPlayer2(UUID player2) {
