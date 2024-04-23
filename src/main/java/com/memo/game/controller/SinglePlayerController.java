@@ -74,6 +74,10 @@ public class SinglePlayerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Session not found!");
         }
 
+        if(singleplayer.isGameOver()) {
+            plays.remove(singleplayer);
+        }
+
         int remainingTime = singleplayer.getTimeRemaining();
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("remainingTime", remainingTime);
@@ -97,6 +101,9 @@ public class SinglePlayerController {
         int index = indexRequest.getIndex();
 
         Map<Integer, Integer> cards = singleplayer.getCard(index);
+        if(singleplayer.isGameOver()) {
+            plays.remove(singleplayer);
+        }
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("cards", cards);
@@ -105,8 +112,27 @@ public class SinglePlayerController {
         responseMap.put("won", singleplayer.getWon());
         responseMap.put("guessedBoard", singleplayer.getGuessedBoard());
         responseMap.put("remainingTime", singleplayer.getTimeRemaining());
+        responseMap.put("numOfGuessed", singleplayer.getNumOfGuessedPairs());
 
         return ResponseEntity.ok(responseMap);
     }
 
+    @PostMapping("/api/singlePlayer/leaveGame/{sessionId}")
+    public ResponseEntity<?> leaveGame(HttpServletRequest request,
+                                              @PathVariable String sessionId) {
+
+        String token = tokenService.extractTokenFromRequest(request);
+        if (!tokenService.isTokenValid(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        SinglePlayer singleplayer = getSinglePlayerById(UUID.fromString(sessionId));
+        if (singleplayer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Session not found!");
+        }
+
+        singleplayer.leaveGame();
+        plays.remove(singleplayer);
+        return ResponseEntity.noContent().build();
+    }
 }
