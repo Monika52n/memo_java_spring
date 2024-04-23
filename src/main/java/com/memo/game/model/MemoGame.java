@@ -85,6 +85,14 @@ public abstract class MemoGame {
         return board[index1];
     }
 
+    public Map<Integer, Integer> getPreviousMove() {
+        Map<Integer, Integer> cards = new HashMap<>();
+        if(firstCardIndex!=-1) {
+            cards.put(firstCardIndex, board[firstCardIndex]);
+        }
+        return cards;
+    }
+
     private Tuple<Integer, Integer> getSecondAndFirstCard(int index2) {
         if(board[firstCardIndex]==board[index2]) {
             isGuessedBoard[firstCardIndex] = true;
