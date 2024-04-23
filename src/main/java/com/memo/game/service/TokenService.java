@@ -1,6 +1,7 @@
 package com.memo.game.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.memo.game.entity.MemoUsers;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,9 +41,13 @@ public class TokenService {
     }
 
     public UUID extractUserIdFromToken(String token) {
-        if (token != null) {
-            DecodedJWT decodedJWT = JWT.decode(token);
-            return UUID.fromString(decodedJWT.getSubject());
+        try {
+            if (token != null) {
+                DecodedJWT decodedJWT = JWT.decode(token);
+                return UUID.fromString(decodedJWT.getSubject());
+            }
+        } catch (JWTDecodeException e) {
+            return null;
         }
         return null;
     }

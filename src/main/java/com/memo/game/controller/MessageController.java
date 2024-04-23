@@ -67,14 +67,22 @@ public class MessageController {
             return responseMessage;
         }
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
+        if(playerId==null) {
+            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
+            errorMessage.setType("error");
+            errorMessage.setContent("Invalid token");
+            return errorMessage;
+        }
 
         MultiPlayer game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
-        if (game == null) {
+
+        if (game == null || game.getPlayId()==null) {
             responseMessage = new MultiPlayerMessage(memoUsersService);
             responseMessage.setType("error");
             responseMessage.setContent("Cannot join");
             return responseMessage;
         }
+
         headerAccessor.getSessionAttributes().put("gameId", game.getPlayId());
         headerAccessor.getSessionAttributes().put("player", playerId);
 
@@ -112,10 +120,26 @@ public class MessageController {
     @MessageMapping("/game.move")
     public void makeMove(@Payload MultiPlayerMessage message) {
         String token = message.getSenderToken();
-        UUID player = tokenService.extractUserIdFromToken(token);
         UUID gameId = message.getGameId();
         int index = message.getIndex();
         MultiPlayer game = multiPlayerService.getGame(gameId);
+
+        if (!tokenService.isTokenValid(token)) {
+            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
+            errorMessage.setType("error");
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
+            errorMessage.setType("Unauthorized");
+            return;
+        }
+
+        UUID player = tokenService.extractUserIdFromToken(token);
+        if(player==null) {
+            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
+            errorMessage.setType("error");
+            errorMessage.setContent("Invalid token.");
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
+            return;
+        }
         if (game == null) {
             MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
             errorMessage.setType("error");
@@ -152,33 +176,13 @@ public class MessageController {
 
     @EventListener
     public void SessionDisconnectEvent(SessionDisconnectEvent event) {
-        System.out.println("xd");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        UUID gameId = (UUID) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("gameId");
+        UUID gameId = (UUID) headerAccessor.getSessionAttributes().get("gameId");
         UUID player = (UUID) headerAccessor.getSessionAttributes().get("player");
-
         MultiPlayer game = multiPlayerService.getGame(gameId);
 
         if (game != null) {
             game.playerLeaves(player);
-
-            /*if (game.getPlayer1Id().equals(player)) {
-                game.setPlayer1Id(null);
-                if (game.getPlayer2Id() != null) {
-                    game.setGameState(GameState.PLAYER2_WON);
-                    game.setWinner(game.getPlayer2());
-                } else {
-                    ticTacToeManager.removeGame(gameId);
-                }
-            } else if (game.getPlayer2() != null && game.getPlayer2().equals(player)) {
-                game.setPlayer2(null);
-                if (game.getPlayer1() != null) {
-                    game.setGameState(GameState.PLAYER1_WON);
-                    game.setWinner(game.getPlayer1());
-                } else {
-                    ticTacToeManager.removeGame(gameId);
-                }
-            }*/
             MultiPlayerMessage gameMessage = gameToMessage(game);
             gameMessage.setType("game.gameOver");
             messagingTemplate.convertAndSend("/topic/game." + gameId, gameMessage);
