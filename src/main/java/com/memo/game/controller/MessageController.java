@@ -74,7 +74,16 @@ public class MessageController {
             return errorMessage;
         }
 
-        MultiPlayer game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
+        MultiPlayer game;
+        UUID gameId = null;
+        if(message.getFriendRoomId()!=null) {
+            gameId = UUID.fromString(message.getFriendRoomId());
+        }
+        if(message.isWantToPlayWithFriend()) {
+            game = multiPlayerService.joinGameWithFriend(playerId, message.getNumOfPairs(), gameId);
+        } else {
+            game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
+        }
 
         if (game == null || game.getPlayId()==null) {
             responseMessage = new MultiPlayerMessage(memoUsersService);
