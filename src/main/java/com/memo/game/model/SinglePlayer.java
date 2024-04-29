@@ -24,6 +24,7 @@ public class SinglePlayer extends MemoGame {
 
     public int getTimeRemaining() {return timeRemaining;}
     public boolean getWon() {return won;}
+    public int getInitialTime() {return  initialTime;}
 
     private void startTimer() {
         if (!isTimerRunning) {

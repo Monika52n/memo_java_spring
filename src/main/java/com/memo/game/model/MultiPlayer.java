@@ -12,7 +12,6 @@ public class MultiPlayer extends MemoGame {
     private boolean isGameStarted = false;
 
     public MultiPlayer(int numberOfPairs, UUID player1Id, UUID player2Id) {
-        board = new int[numberOfPairs*2];
         this.player1Id = player1Id;
         this.player2Id = player2Id;
 
@@ -95,10 +94,6 @@ public class MultiPlayer extends MemoGame {
 
     public void setPlayer2Id(UUID player2Id) {
         this.player2Id = player2Id;
-    }
-
-    public int getNumberOfPairs() {
-       return board.length/2;
     }
 
     public boolean isPlayer1sTurn() {
