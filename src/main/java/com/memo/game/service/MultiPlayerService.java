@@ -32,6 +32,7 @@ public class MultiPlayerService {
 
         if(gameId!=null) {
             MultiPlayer game = getGame(gameId);
+            if(game==null) return null;
             if (game.getPlayer1Id() != null && game.getPlayer2Id() == null) {
                 game.setPlayer2Id(player);
                 game.setGameStarted(true);
