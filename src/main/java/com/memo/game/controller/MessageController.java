@@ -63,7 +63,7 @@ public class MessageController {
         if (!tokenService.isTokenValid(message.getToken())) {
             responseMessage = new MultiPlayerMessage(memoUsersService);
             responseMessage.setType("error");
-            responseMessage.setType("Unauthorized");
+            responseMessage.setContent("Unauthorized");
             return responseMessage;
         }
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
@@ -75,11 +75,22 @@ public class MessageController {
         }
 
         MultiPlayer game;
-        UUID gameId = null;
-        if(message.getFriendRoomId()!=null) {
-            gameId = UUID.fromString(message.getFriendRoomId());
-        }
+
         if(message.isWantToPlayWithFriend()) {
+            UUID gameId = null;
+            if(message.getFriendRoomId()!=null) {
+                try {
+                    gameId = UUID.fromString(message.getFriendRoomId());
+                }
+                catch(IllegalArgumentException e) {
+                    if(message.getNumOfPairs()<=0) {
+                        responseMessage = new MultiPlayerMessage(memoUsersService);
+                        responseMessage.setType("error");
+                        responseMessage.setContent("Invalid params");
+                        return responseMessage;
+                    }
+                }
+            }
             game = multiPlayerService.joinGameWithFriend(playerId, message.getNumOfPairs(), gameId);
         } else {
             game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
@@ -185,6 +196,7 @@ public class MessageController {
 
     @EventListener
     public void SessionDisconnectEvent(SessionDisconnectEvent event) {
+        System.out.println("debug");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         UUID gameId = (UUID) headerAccessor.getSessionAttributes().get("gameId");
         UUID player = (UUID) headerAccessor.getSessionAttributes().get("player");
