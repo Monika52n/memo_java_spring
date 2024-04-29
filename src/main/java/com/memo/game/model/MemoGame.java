@@ -57,6 +57,10 @@ public abstract class MemoGame {
         return arePreviousCardsequal;
     }
 
+    public int getNumberOfPairs() {
+        return board.length/2;
+    }
+
     protected Map<Integer, Integer> getOneCard(int index) {
         if(index<0 || index>= board.length) {
             throw new ArrayIndexOutOfBoundsException("Index " + index + " is out of bounds for array length " + board.length);
