@@ -24,6 +24,7 @@ public class SinglePlayer extends MemoGame {
 
     public int getTimeRemaining() {return timeRemaining;}
     public boolean getWon() {return won;}
+    public int getInitialTime() {return  initialTime;}
 
     private void startTimer() {
         if (!isTimerRunning) {
@@ -50,6 +51,16 @@ public class SinglePlayer extends MemoGame {
         }
     }
 
+    public int getNumOfGuessedPairs() {
+        int sum = 0;
+        for (Boolean pair : isGuessedBoard) {
+            if (pair) {
+                sum++;
+            }
+        }
+        return sum/2;
+    }
+
     public Map<Integer, Integer> getCard(int index) {
         return getOneCard(index);
     }
@@ -74,7 +85,26 @@ public class SinglePlayer extends MemoGame {
         }
     }
 
+    public void leaveGame() {
+        isGameOver = true;
+        stopTimer();
+        timeRemaining=0;
+    }
+
     public void saveGame() {
         gameSaver.saveGameAfterEnded(playId, won, timeRemaining, board.length/2, initialTime);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SinglePlayer that = (SinglePlayer) o;
+        return Objects.equals(playId, that.getPlayId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(playId);
     }
 }

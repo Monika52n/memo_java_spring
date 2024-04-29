@@ -57,6 +57,10 @@ public abstract class MemoGame {
         return arePreviousCardsequal;
     }
 
+    public int getNumberOfPairs() {
+        return board.length/2;
+    }
+
     protected Map<Integer, Integer> getOneCard(int index) {
         if(index<0 || index>= board.length) {
             throw new ArrayIndexOutOfBoundsException("Index " + index + " is out of bounds for array length " + board.length);
@@ -83,6 +87,14 @@ public abstract class MemoGame {
         this.firstCardIndex = index1;
         arePreviousCardsequal = false;
         return board[index1];
+    }
+
+    public Map<Integer, Integer> getPreviousMove() {
+        Map<Integer, Integer> cards = new HashMap<>();
+        if(firstCardIndex!=-1) {
+            cards.put(firstCardIndex, board[firstCardIndex]);
+        }
+        return cards;
     }
 
     private Tuple<Integer, Integer> getSecondAndFirstCard(int index2) {
