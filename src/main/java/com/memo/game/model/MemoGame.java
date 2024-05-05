@@ -65,14 +65,14 @@ public abstract class MemoGame {
         if(index<0 || index>= board.length) {
             throw new ArrayIndexOutOfBoundsException("Index " + index + " is out of bounds for array length " + board.length);
         }
+        if(index==firstCardIndex) {
+            throw new IllegalArgumentException("Index (" +  index + ") is same as the previous (" + firstCardIndex + ").");
+        }
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
         if(!isGameOver) {
             if (firstCardIndex == -1) {
                 map.put(index, getFirstCard(index));
             } else {
-                if(firstCardIndex==index) {
-                    throw new IllegalArgumentException("The index is the same as previous.");
-                }
                 Tuple<Integer, Integer> values = getSecondAndFirstCard(index);
                 map.put(firstCardIndex, values.getFirst());
                 map.put(index, values.getSecond());
@@ -109,4 +109,10 @@ public abstract class MemoGame {
     }
 
     protected abstract void gameEnded();
+
+    public void setBoard(int[] board) {
+        if(board.length==this.board.length) {
+            this.board = board;
+        }
+    }
 }
