@@ -2,14 +2,12 @@ package com.memo.game.service;
 
 import com.memo.game.entity.MemoMultiGame;
 import com.memo.game.model.MultiPlayer;
+import com.memo.game.model.SinglePlayer;
 import com.memo.game.repo.MemoMultiGameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MultiPlayerService {
@@ -97,7 +95,6 @@ public class MultiPlayerService {
     }
 
     public MultiPlayer getGame(UUID gameId) {
-        debug();
         if(gameId==null) return null;
         MultiPlayer gameRandom = games.stream().filter(game -> gameId.equals(game.getPlayId())).findFirst().orElse(null);
         if(gameRandom!=null) {
@@ -112,15 +109,6 @@ public class MultiPlayerService {
         gamesWithFriends.remove(game);
     }
 
-    public void debug() {
-        for(MultiPlayer game : games) {
-            System.out.println(game);
-        }
-        for(MultiPlayer game : gamesWithFriends) {
-            System.out.println(game);
-        }
-    }
-
     public void saveGame(MultiPlayer game) {
         MemoMultiGame memoMultiGame = new MemoMultiGame(
                 game.getPlayId(),
@@ -132,5 +120,12 @@ public class MultiPlayerService {
                 game.getPlayer2GuessedCards()
         );
         memoMultiGameRepository.save(memoMultiGame);
+    }
+
+    public List<MultiPlayer> getGames() {
+        return Collections.unmodifiableList(games);
+    }
+    public List<MultiPlayer> getGamesWithFriends() {
+        return Collections.unmodifiableList(gamesWithFriends);
     }
 }

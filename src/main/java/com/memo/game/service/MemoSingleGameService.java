@@ -2,21 +2,19 @@ package com.memo.game.service;
 
 import com.memo.game.entity.MemoSingleGame;
 import com.memo.game.model.GameSaver;
+import com.memo.game.model.SinglePlayer;
 import com.memo.game.repo.MemoSingleGameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class MemoSingleGameService implements GameSaver {
+    private final List<SinglePlayer> plays = new ArrayList<SinglePlayer>();
     private final Map<UUID, UUID> playsWithUsers= new HashMap<UUID, UUID>();
-
     private final MemoSingleGameRepository gameRepository;
 
     @Autowired
@@ -28,11 +26,11 @@ public class MemoSingleGameService implements GameSaver {
         return gameRepository.save(game);
     }
 
-    public List<MemoSingleGame> findGamesByUserId(UUID userId) {
+    public List<MemoSingleGame> findGamesByUserIdInDb(UUID userId) {
         return gameRepository.findByUserId(userId);
     }
 
-    public List<MemoSingleGame> findGamesByUserId(UUID userId, int page, int size) {
+    public List<MemoSingleGame> findGamesByUserIdInDb(UUID userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return gameRepository.findByUserIdPaginated(userId, pageable);
     }
@@ -44,11 +42,34 @@ public class MemoSingleGameService implements GameSaver {
         saveGame(game);
     }
 
-    public void addPlayWithUser(UUID play, UUID player) {
-        playsWithUsers.put(play, player);
+    public int getTotalGamesCountByUserIdFromDb(UUID userId) {
+        return gameRepository.countByUserId(userId);
     }
 
-    public int getTotalGamesCountByUserId(UUID userId) {
-        return gameRepository.countByUserId(userId);
+    public void addSinglePlayerToList(SinglePlayer game, UUID userId) {
+        plays.add(game);
+        playsWithUsers.put(game.getPlayId(), userId);
+    }
+
+    public SinglePlayer getSinglePlayerByGameIdFromList(UUID id) {
+        for (SinglePlayer play : plays) {
+            if (id.equals(play.getPlayId())) {
+                return play;
+            }
+        }
+        return null;
+    }
+
+    public void removeSinglePlayerFromList(SinglePlayer singleplayer) {
+        plays.remove(singleplayer);
+        playsWithUsers.remove(singleplayer.getPlayId());
+    }
+
+    public List<SinglePlayer> getPlays() {
+        return Collections.unmodifiableList(plays);
+    }
+
+    public Map<UUID, UUID> getPlaysWithUsers() {
+        return Collections.unmodifiableMap(playsWithUsers);
     }
 }
