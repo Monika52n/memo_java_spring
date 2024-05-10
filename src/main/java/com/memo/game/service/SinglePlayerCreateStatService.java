@@ -10,16 +10,16 @@ import java.util.List;
 
 @Service
 public class SinglePlayerCreateStatService  {
-    ArrayList<ModeStat> modeStats = new ArrayList<ModeStat>();
+    private final ArrayList<ModeStat> modeStats = new ArrayList<ModeStat>();
 
-    public List<ModeStat> getList() {
-        return Collections.unmodifiableList(modeStats);
-    }
+    public SinglePlayerCreateStatService() {}
 
-    public SinglePlayerCreateStatService(List<MemoSingleGame> games) {
+    public List<ModeStat> addList(List<MemoSingleGame> games) {
+        modeStats.clear();
         for(MemoSingleGame game : games) {
             addGame(game.getPairs(), game.getTimeMax(), game.isWon(), game.getRemainingTime());
         }
+        return modeStats;
     }
 
     private void addGame(int pairs, int time, boolean won, int remainingTime) {

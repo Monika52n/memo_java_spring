@@ -35,6 +35,10 @@ public class SinglePlayerController {
 
         int initialTime = startSinglePlayerRequest.getInitialTime();
         int numberOfPairs = startSinglePlayerRequest.getNumberOfPairs();
+        if (initialTime==0 || numberOfPairs==0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
         SinglePlayer singleplayer = new SinglePlayer(numberOfPairs, initialTime, memoSingleGameService);
 
         UUID userId = tokenService.extractUserIdFromToken(token);
@@ -88,8 +92,13 @@ public class SinglePlayerController {
         }
 
         int index = indexRequest.getIndex();
+        Map<Integer, Integer> cards;
+        try {
+            cards = singleplayer.getCard(index);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
 
-        Map<Integer, Integer> cards = singleplayer.getCard(index);
         if(singleplayer.isGameOver()) {
             memoSingleGameService.removeSinglePlayerFromList(singleplayer);
         }

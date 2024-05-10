@@ -37,7 +37,12 @@ public class AuthController {
         Map<String, Object> responseMap = new HashMap<>();
         String email = registerRequest.getEmail();
         String userName = registerRequest.getUsername();
+        String password = registerRequest.getPassword();
 
+        if(email==null || userName==null || email.isEmpty() || userName.isEmpty()
+            || password==null || password.isEmpty()) {
+            return ResponseEntity.badRequest().body("Incorrect request data!");
+        }
         if(gameService.getByEmail(email)!=null) {
             return ResponseEntity.badRequest().body("Existing email!");
         }
@@ -48,7 +53,7 @@ public class AuthController {
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         Matcher matcher = pattern.matcher(email);
         if(matcher.matches()) {
-            String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
             MemoUsers memoUser = new MemoUsers(userName, email, hashedPassword);
             gameService.saveUser(memoUser);
             return ResponseEntity.ok().build();
@@ -61,6 +66,11 @@ public class AuthController {
     public ResponseEntity<?> signIn(@RequestBody AuthRequest signInRequest) {
         UUID userId = null;
         MemoUsers user = null;
+
+        if((signInRequest.getEmail()==null && signInRequest.getUsername()==null) ||
+            signInRequest.getPassword()==null) {
+            return ResponseEntity.badRequest().body("Incorrect request data!");
+        }
 
         if(signInRequest.getUsername()!=null) {
             user = gameService.getByUserName(signInRequest.getUsername());

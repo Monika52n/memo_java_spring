@@ -16,6 +16,9 @@ public class TokenService {
     @Autowired
     private TokenBlacklistService tokenBlacklistService;
 
+    public TokenService() {}
+    public TokenService(TokenBlacklistService tokenBlacklistService) {this.tokenBlacklistService=tokenBlacklistService;}
+
     public String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

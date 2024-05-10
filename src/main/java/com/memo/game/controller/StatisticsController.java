@@ -82,9 +82,8 @@ public class StatisticsController {
         }
 
         List<MemoSingleGame> games = memoSingleGameService.findGamesByUserIdInDb(userId);
-        SinglePlayerCreateStatService singlePlayerCreateStatService
-                = new SinglePlayerCreateStatService(games);
-        return ResponseEntity.ok(singlePlayerCreateStatService.getList());
+        SinglePlayerCreateStatService singlePlayerCreateStatService = new SinglePlayerCreateStatService();
+        return ResponseEntity.ok(singlePlayerCreateStatService.addList(games));
     }
 
     @PostMapping("/api/multiPlayerStatistics")
@@ -94,7 +93,7 @@ public class StatisticsController {
         if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<Object> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
+        List<HashMap<String, Object>> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
         return ResponseEntity.ok(leaderboard);
     }
 }
