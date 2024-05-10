@@ -22,28 +22,24 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 public class MemoSingleGameServiceTest {
-    MemoSingleGameService memoSingleGameService;
+    private MemoSingleGameService memoSingleGameService;
     @Mock
     private MemoSingleGameRepository memoSingleGameRepository;
 
-    MemoSingleGame game1;
-    MemoSingleGame game2;
-    MemoSingleGame game3;
-    SinglePlayer singlePlayer;
-    UUID gameId1 = UUID.randomUUID();
-    UUID gameId2 = UUID.randomUUID();
-    UUID gameId3 = UUID.randomUUID();
-    UUID userId1 = UUID.randomUUID();
-    UUID userId2 = UUID.randomUUID();
-    Pageable pageable = PageRequest.of(1, 10);
+    private SinglePlayer singlePlayer;
+    private final UUID gameId1 = UUID.randomUUID();
+    private final UUID gameId2 = UUID.randomUUID();
+    private final UUID gameId3 = UUID.randomUUID();
+    private final UUID userId1 = UUID.randomUUID();
+    private final UUID userId2 = UUID.randomUUID();
+    private final Pageable pageable = PageRequest.of(1, 10);
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
-        memoSingleGameService = new MemoSingleGameService(memoSingleGameRepository);
-        game1 = new MemoSingleGame(gameId1, userId1,true, 10, 8, 60);
-        game2 = new MemoSingleGame(gameId2, userId1, false, 0,16,120);
-        game3 = new MemoSingleGame(gameId3, userId2, true, 15, 24,300);
+        MemoSingleGame game1 = new MemoSingleGame(gameId1, userId1, true, 10, 8, 60);
+        MemoSingleGame game2 = new MemoSingleGame(gameId2, userId1, false, 0, 16, 120);
+        MemoSingleGame game3 = new MemoSingleGame(gameId3, userId2, true, 15, 24, 300);
         singlePlayer = new SinglePlayer(8, 60, memoSingleGameService);
 
         List<MemoSingleGame> listOfGames1 = new ArrayList<>();
@@ -63,10 +59,12 @@ public class MemoSingleGameServiceTest {
         when(memoSingleGameRepository.save(game1)).thenReturn(game1);
         when(memoSingleGameRepository.save(game2)).thenReturn(game2);
         when(memoSingleGameRepository.save(game3)).thenReturn(game3);
+
+        memoSingleGameService = new MemoSingleGameService(memoSingleGameRepository);
     }
 
     @Test
-    void findGamesByUserIdTest() {
+    public void findGamesByUserIdTest() {
         List<MemoSingleGame> games1 = memoSingleGameService.findGamesByUserIdInDb(userId1);
         List<MemoSingleGame> games2 = memoSingleGameService.findGamesByUserIdInDb(userId2);
 
@@ -79,13 +77,13 @@ public class MemoSingleGameServiceTest {
     }
 
     @Test
-    void getTotalGamesCountByUserIdTest() {
+    public void getTotalGamesCountByUserIdTest() {
         assertThat(memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId1)).isEqualTo(2);
         assertThat(memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId2)).isEqualTo(1);
     }
 
     @Test
-    void findGamesByUserIdPageableTest() {
+    public void findGamesByUserIdPageableTest() {
         List<MemoSingleGame> games1 = memoSingleGameService.findGamesByUserIdInDb(userId1, 1, 10);
         List<MemoSingleGame> games2 = memoSingleGameService.findGamesByUserIdInDb(userId2, 1, 10);
 
@@ -98,7 +96,7 @@ public class MemoSingleGameServiceTest {
     }
 
     @Test
-    void addGameTest() {
+    public void addGameTest() {
         memoSingleGameService.addSinglePlayerToList(singlePlayer, userId1);
         memoSingleGameService.addSinglePlayerToList( new SinglePlayer(16, 120, memoSingleGameService), userId2);
 
@@ -113,7 +111,7 @@ public class MemoSingleGameServiceTest {
     }
 
     @Test
-    void getSinglePlayerByGameIdTest() {
+    public void getSinglePlayerByGameIdTest() {
         memoSingleGameService.addSinglePlayerToList(singlePlayer, userId1);
         SinglePlayer play = memoSingleGameService.getSinglePlayerByGameIdFromList(singlePlayer.getPlayId());
         assertThat(play).isNotNull();
@@ -121,7 +119,7 @@ public class MemoSingleGameServiceTest {
     }
 
     @Test
-    void removeGame() {
+    public void removeGame() {
         memoSingleGameService.addSinglePlayerToList(singlePlayer, userId2);
         memoSingleGameService.addSinglePlayerToList( new SinglePlayer(16, 120, memoSingleGameService), userId1);
         memoSingleGameService.addSinglePlayerToList( new SinglePlayer(8, 120, memoSingleGameService), userId2);

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Map;
 import java.util.UUID;
 
-public class MultiPlayerMessage implements Message {
+public class MultiPlayerMessage {
     private MemoUsersService memoUsersService;
     private UUID player1;
     private UUID player2;
@@ -86,7 +86,6 @@ public class MultiPlayerMessage implements Message {
         return gameId;
     }
 
-    @Override
     public String getContent() {
         return content;
     }

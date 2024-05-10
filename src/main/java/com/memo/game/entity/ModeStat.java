@@ -69,6 +69,12 @@ public class ModeStat {
         return pairs;
     }
 
+    public int getWins() {return wins;}
+    public int getLosses() {return losses;}
+    public double getAvgRemTime() {return avgRemainingTime;}
+    public double getWinningRate() {return  winningRate;}
+    public int getNumOfGames() {return  numOfGames;}
+
     public static class CustomDoubleSerializer extends JsonSerializer<Double> {
         private static final DecimalFormat df = new DecimalFormat("0");
 
