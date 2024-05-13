@@ -41,6 +41,9 @@ public class StatisticsController {
         if(userId==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
         }
+        if(size<=0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: size");
+        }
 
         int totalItems = memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId);
 
@@ -51,9 +54,6 @@ public class StatisticsController {
             totalPages = (totalItems/size)+1;
         }
 
-        if(size<=0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: size");
-        }
         if(page<=0 || page>totalPages) {
             System.out.println(page + " " + totalPages);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
@@ -92,6 +92,9 @@ public class StatisticsController {
         String token = tokenService.extractTokenFromRequest(request);
         if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if(pairs<=0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
         }
         List<HashMap<String, Object>> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
         return ResponseEntity.ok(leaderboard);

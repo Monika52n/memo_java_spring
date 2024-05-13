@@ -132,7 +132,7 @@ public class MultiPlayer extends MemoGame {
 
     public boolean isPlayersTurn(UUID player) {
         return (isPlayer1sTurn && player.equals(player1Id)) ||
-                player.equals(player2Id);
+                (!isPlayer1sTurn && player.equals(player2Id));
     }
 
     @Override
