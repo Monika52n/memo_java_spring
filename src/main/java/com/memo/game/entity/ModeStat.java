@@ -71,7 +71,7 @@ public class ModeStat {
 
     public int getWins() {return wins;}
     public int getLosses() {return losses;}
-    public double getAvgRemTime() {return avgRemainingTime;}
+    public double getAvgRemainingTime() {return avgRemainingTime;}
     public double getWinningRate() {return  winningRate;}
     public int getNumOfGames() {return  numOfGames;}
 

@@ -69,7 +69,7 @@ public class SinglePlayerCreateStatServiceTest {
         assertThat((int)modeStat1.getWinningRate()).isEqualTo(79);
         assertThat(modeStat1.getPairs()).isEqualTo(8);
         assertThat(modeStat1.getTime()).isEqualTo(80);
-        assertThat((int)modeStat1.getAvgRemTime()).isEqualTo(356);
+        assertThat((int)modeStat1.getAvgRemainingTime()).isEqualTo(356);
     }
 
     @Test
@@ -84,7 +84,7 @@ public class SinglePlayerCreateStatServiceTest {
         assertThat((int)modeStat2.getWinningRate()).isEqualTo(83);
         assertThat(modeStat2.getPairs()).isEqualTo(16);
         assertThat(modeStat2.getTime()).isEqualTo(320);
-        assertThat(modeStat2.getAvgRemTime()).isEqualTo(350.0);
+        assertThat(modeStat2.getAvgRemainingTime()).isEqualTo(350.0);
     }
 
     @Test
@@ -99,6 +99,6 @@ public class SinglePlayerCreateStatServiceTest {
         assertThat((int)modeStat3.getWinningRate()).isEqualTo(79);
         assertThat(modeStat3.getPairs()).isEqualTo(24);
         assertThat(modeStat3.getTime()).isEqualTo(240);
-        assertThat((int)modeStat3.getAvgRemTime()).isEqualTo(343);
+        assertThat((int)modeStat3.getAvgRemainingTime()).isEqualTo(343);
     }
 }

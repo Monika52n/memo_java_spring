@@ -23,4 +23,20 @@ public class JoinMessage {
     public String getFriendRoomId() {
         return friendRoomId;
     }
+
+    public void setNumOfPairs(int numOfPairs) {
+        this.numOfPairs = numOfPairs;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setWantToPlayWithFriend(boolean wantToPlayWithFriend) {
+        this.wantToPlayWithFriend = wantToPlayWithFriend;
+    }
+
+    public void setFriendRoomId(String friendRoomId) {
+        this.friendRoomId = friendRoomId;
+    }
 }

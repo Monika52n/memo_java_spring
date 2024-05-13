@@ -1,16 +1,14 @@
 package com.memo.game.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.memo.game.entity.MemoUsers;
 import com.memo.game.model.MultiPlayer;
 import com.memo.game.service.MemoUsersService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class MultiPlayerMessage {
-    private MemoUsersService memoUsersService;
+    private UserNameSearcher userNameSearcher;
     private UUID player1;
     private UUID player2;
     @JsonProperty("type")
@@ -41,12 +39,12 @@ public class MultiPlayerMessage {
     private int player2GuessedCards;
     public MultiPlayerMessage() {}
 
-    public MultiPlayerMessage (MemoUsersService memoUsersService) {
-        this.memoUsersService = memoUsersService;
+    public MultiPlayerMessage (UserNameSearcher memoUsersService) {
+        this.userNameSearcher = memoUsersService;
     }
 
-    public MultiPlayerMessage(MultiPlayer game, MemoUsersService memoUsersService) {
-        this.memoUsersService = memoUsersService;
+    public MultiPlayerMessage(MultiPlayer game, UserNameSearcher memoUsersService) {
+        this.userNameSearcher = memoUsersService;
         this.gameId = game.getPlayId();
         this.player1 = game.getPlayer1Id();
         this.player2 = game.getPlayer2Id();
@@ -96,7 +94,7 @@ public class MultiPlayerMessage {
 
     public void setPlayer1(UUID player1) {
         this.player1 = player1;
-        this.player1Name = memoUsersService.getUserNameById(player1);
+        this.player1Name = userNameSearcher.getUserNameById(player1);
     }
 
     public UUID getPlayer1() {
@@ -109,7 +107,7 @@ public class MultiPlayerMessage {
 
     public void setPlayer2(UUID player2) {
         this.player2 = player2;
-        this.player2Name = memoUsersService.getUserNameById(player2);
+        this.player2Name = userNameSearcher.getUserNameById(player2);
     }
 
     public String getWinner() {

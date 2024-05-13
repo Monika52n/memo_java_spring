@@ -115,4 +115,8 @@ public abstract class MemoGame {
             this.board = board;
         }
     }
+
+    public void setGameOver(boolean isGameOver) {
+        this.isGameOver=isGameOver;
+    }
 }
