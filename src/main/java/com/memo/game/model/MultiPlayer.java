@@ -23,7 +23,9 @@ public class MultiPlayer extends MemoGame {
             throw new IllegalArgumentException("There are missing players!");
         }
         if(!((isPlayer1sTurn && player.equals(player1Id))
-                || (!isPlayer1sTurn && (player.equals(player2Id))))) {
+                || (!isPlayer1sTurn && (player.equals(player2Id))))
+                || !isGameStarted
+                || (getGuessedBoard())[index]!=null) {
             return new HashMap<>();
         }
 
@@ -130,7 +132,7 @@ public class MultiPlayer extends MemoGame {
 
     public boolean isPlayersTurn(UUID player) {
         return (isPlayer1sTurn && player.equals(player1Id)) ||
-                player.equals(player2Id);
+                (!isPlayer1sTurn && player.equals(player2Id));
     }
 
     @Override

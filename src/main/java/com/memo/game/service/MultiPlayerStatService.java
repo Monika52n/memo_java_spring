@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class MultiPlayerStatService {
-    MemoMultiGameRepository memoMultiGameRepository;
-    MemoUsersRepository memoUsersRepository;
+    private final MemoMultiGameRepository memoMultiGameRepository;
+    private final MemoUsersRepository memoUsersRepository;
     @Autowired
     public  MultiPlayerStatService(MemoMultiGameRepository memoMultiGameRepository, MemoUsersRepository memoUsersRepository) {
         this.memoMultiGameRepository = memoMultiGameRepository;
@@ -24,14 +24,14 @@ public class MultiPlayerStatService {
         HashMap<String, Integer> leaderBoard = new HashMap<>();
         List<MemoUsers> users = memoUsersRepository.findAll();
         for(MemoUsers user : users) {
-            Integer wins = memoUsersRepository.getWins((user.getId()).toString(), pairs);
+            Integer wins = memoMultiGameRepository.getWins((user.getId()).toString(), pairs);
             leaderBoard.put(user.getUserName(), wins);
         }
         return leaderBoard;
     }
 
-    private List<Object> makeRankedLeaderBoard(HashMap<String, Integer> leaderboard) {
-        List<Object> rankedLeaderBoard = new ArrayList<>();
+    private List<HashMap<String, Object>> makeRankedLeaderBoard(HashMap<String, Integer> leaderboard) {
+        List<HashMap<String, Object>> rankedLeaderBoard = new ArrayList<>();
         int prevWins = -1;
         int rank = 0;
         for (Map.Entry<String, Integer> entry : leaderboard.entrySet()) {
@@ -50,7 +50,7 @@ public class MultiPlayerStatService {
         return rankedLeaderBoard;
     }
 
-    HashMap<String, Integer> sortLeaderboard(HashMap<String, Integer> leaderboard) {
+    private HashMap<String, Integer> sortLeaderboard(HashMap<String, Integer> leaderboard) {
         return leaderboard = leaderboard.entrySet()
                 .stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder()))
@@ -62,7 +62,7 @@ public class MultiPlayerStatService {
                 ));
     }
 
-    public List<Object> getLeaderBoard(int pairs) {
+    public List<HashMap<String, Object>> getLeaderBoard(int pairs) {
         HashMap<String, Integer> leaderboard= getUsersWithWins(pairs);
         leaderboard= sortLeaderboard(leaderboard);
         return makeRankedLeaderBoard(leaderboard);

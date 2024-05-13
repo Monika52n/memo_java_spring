@@ -17,8 +17,6 @@ public class MemoUsers {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
-    private boolean signedIn;
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp createdAt;
 
@@ -29,7 +27,6 @@ public class MemoUsers {
         this.userName = userName;
         this.email = email;
         this.password = password;
-        this.signedIn = false;
         this.createdAt = Timestamp.valueOf(LocalDateTime.now());
         this.updatedAt = Timestamp.valueOf(LocalDateTime.now());
     }
@@ -47,6 +44,8 @@ public class MemoUsers {
         return id;
     }
 
+    public void setId(UUID id) {this.id = id;}
+
     public String getUserName() {
         return userName;
     }
@@ -57,13 +56,5 @@ public class MemoUsers {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public void setSignedIn(boolean signedIn) {
-        this.signedIn = signedIn;
-    }
-
-    public boolean isSignedIn() {
-        return signedIn;
     }
 }

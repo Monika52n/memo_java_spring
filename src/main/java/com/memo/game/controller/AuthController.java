@@ -37,7 +37,12 @@ public class AuthController {
         Map<String, Object> responseMap = new HashMap<>();
         String email = registerRequest.getEmail();
         String userName = registerRequest.getUsername();
+        String password = registerRequest.getPassword();
 
+        if(email==null || userName==null || email.isEmpty() || userName.isEmpty()
+            || password==null || password.isEmpty()) {
+            return ResponseEntity.badRequest().body("Incorrect request data!");
+        }
         if(gameService.getByEmail(email)!=null) {
             return ResponseEntity.badRequest().body("Existing email!");
         }
@@ -48,7 +53,7 @@ public class AuthController {
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         Matcher matcher = pattern.matcher(email);
         if(matcher.matches()) {
-            String hashedPassword = BCrypt.hashpw(registerRequest.getPassword(), BCrypt.gensalt());
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
             MemoUsers memoUser = new MemoUsers(userName, email, hashedPassword);
             gameService.saveUser(memoUser);
             return ResponseEntity.ok().build();
@@ -62,6 +67,11 @@ public class AuthController {
         UUID userId = null;
         MemoUsers user = null;
 
+        if((signInRequest.getEmail()==null && signInRequest.getUsername()==null) ||
+            signInRequest.getPassword()==null) {
+            return ResponseEntity.badRequest().body("Incorrect request data!");
+        }
+
         if(signInRequest.getUsername()!=null) {
             user = gameService.getByUserName(signInRequest.getUsername());
         }
@@ -69,11 +79,7 @@ public class AuthController {
             user = gameService.getByEmail(signInRequest.getEmail());
         }
         if(user!=null) {
-            if(user.isSignedIn()) {
-                return ResponseEntity.badRequest().body("User already signed in.");
-            }
             if(BCrypt.checkpw(signInRequest.getPassword(), user.getPassword())) {
-                gameService.signIn(user.getId());
                 String token = tokenService.generateJwtToken(user);
                 return ResponseEntity.ok(token);
             } else {
@@ -84,23 +90,11 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/api/signOut")
-    public ResponseEntity<Void> signOut(HttpServletRequest request) {
-        String token = tokenService.extractTokenFromRequest(request);
-        if (!tokenService.isTokenValid(token)) {
-            return ResponseEntity.badRequest().build();
-        } else {
-            gameService.signOut(tokenService.extractUserIdFromToken(token));
-            tokenBlacklistService.addToBlacklist(token);
-            return ResponseEntity.noContent().build();
-        }
-    }
-
     @PostMapping("api/getUserInfo")
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = tokenService.extractTokenFromRequest(request);
         if (!tokenService.isTokenValid(token)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         UUID userId = tokenService.extractUserIdFromToken(token);

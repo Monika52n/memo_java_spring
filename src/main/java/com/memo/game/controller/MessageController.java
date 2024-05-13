@@ -20,6 +20,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -56,22 +57,22 @@ public class MessageController {
      * @param message the message from the client containing the player's name
      * @return the current state of the game, or an error message if the player was unable to join
      */
+    private MultiPlayerMessage createErrorMessage(String content, UUID playerId) {
+        MultiPlayerMessage responseMessage = new MultiPlayerMessage(memoUsersService);
+        responseMessage.setType("error");
+        responseMessage.setContent(content);
+        responseMessage.setPlayer1(playerId);
+        return responseMessage;
+    }
     @MessageMapping("/game.join")
     @SendTo("/topic/game.state")
-    public Object joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
-        MultiPlayerMessage responseMessage;
+    public MultiPlayerMessage joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
         if (!tokenService.isTokenValid(message.getToken())) {
-            responseMessage = new MultiPlayerMessage(memoUsersService);
-            responseMessage.setType("error");
-            responseMessage.setContent("Unauthorized");
-            return responseMessage;
+            return createErrorMessage("Unauthorized", null);
         }
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
         if(playerId==null) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
-            errorMessage.setType("error");
-            errorMessage.setContent("Invalid token");
-            return errorMessage;
+            return createErrorMessage("User not found", null);
         }
 
         MultiPlayer game;
@@ -84,28 +85,26 @@ public class MessageController {
                 }
                 catch(IllegalArgumentException e) {
                     if(message.getNumOfPairs()<=0) {
-                        responseMessage = new MultiPlayerMessage(memoUsersService);
-                        responseMessage.setType("error");
-                        responseMessage.setContent("Invalid params");
-                        return responseMessage;
+                        return createErrorMessage("Incorrect params", playerId);
                     }
                 }
             }
             game = multiPlayerService.joinGameWithFriend(playerId, message.getNumOfPairs(), gameId);
         } else {
+            if(message.getNumOfPairs()<=0) {
+                return createErrorMessage("Incorrect params", playerId);
+            }
             game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
         }
 
         if (game == null || game.getPlayId()==null) {
-            responseMessage = new MultiPlayerMessage(memoUsersService);
-            responseMessage.setType("error");
-            responseMessage.setContent("Cannot join");
-            return responseMessage;
+            return createErrorMessage("Cannot join", playerId);
         }
 
         headerAccessor.getSessionAttributes().put("gameId", game.getPlayId());
         headerAccessor.getSessionAttributes().put("player", playerId);
 
+        MultiPlayerMessage responseMessage;
         responseMessage = gameToMessage(game);
         responseMessage.setType("game.joined");
         responseMessage.setSender(message.getToken());
@@ -145,58 +144,55 @@ public class MessageController {
         MultiPlayer game = multiPlayerService.getGame(gameId);
 
         if (!tokenService.isTokenValid(token)) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
-            errorMessage.setType("error");
-            this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
-            errorMessage.setType("Unauthorized");
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId,
+                    createErrorMessage("Unauthorized", null));
             return;
         }
-
         UUID player = tokenService.extractUserIdFromToken(token);
         if(player==null) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
-            errorMessage.setType("error");
-            errorMessage.setContent("Invalid token.");
-            this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId,
+                    createErrorMessage("Invalid token", null));
             return;
         }
         if (game == null) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
-            errorMessage.setType("error");
-            errorMessage.setContent("Game not found or is already over.");
-            this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId,
+                    createErrorMessage("Game not found or is already over.", player));
             return;
         }
-
         if (!game.isGameStarted()) {
-            MultiPlayerMessage errorMessage = new MultiPlayerMessage(memoUsersService);
-            errorMessage.setType("error");
-            errorMessage.setContent("Game is waiting for another player to join.");
-            this.messagingTemplate.convertAndSend("/topic/game." + gameId, errorMessage);
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId,
+                    createErrorMessage("Game is waiting for another player to join.", player));
+            return;
+        }
+        if (!game.isPlayersTurn(player)) {
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId,
+                    createErrorMessage("Not your turn", player));
             return;
         }
 
-        if (game.isPlayersTurn(player)) {
-            Map<Integer, Integer> lastMove = game.getCard(player, index);
-
-            MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game, memoUsersService);
-            gameStateMessage.setType("game.move");
-            gameStateMessage.setLastMove(lastMove);
-            this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameStateMessage);
-
-            if (game.isGameOver()) {
-                MultiPlayerMessage gameOverMessage = gameToMessage(game);
-                gameOverMessage.setType("game.gameOver");
-                multiPlayerService.saveGame(game);
-                this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameOverMessage);
-                multiPlayerService.removeGame(gameId);
-            }
+        Map<Integer, Integer> lastMove = new HashMap<>();
+        try {
+            lastMove = game.getCard(player, index);
+        } catch (Exception e) {
+            this.messagingTemplate.convertAndSend("/topic/game." + gameId,
+                    createErrorMessage("Incorrect params", player));
+            return;
         }
+
+        MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game, memoUsersService);
+        gameStateMessage.setType("game.move");
+        gameStateMessage.setLastMove(lastMove);
+
+        if (game.isGameOver()) {
+            gameStateMessage.setType("game.gameOver");
+            multiPlayerService.saveGame(game);
+            multiPlayerService.removeGame(gameId);
+        }
+        this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameStateMessage);
     }
 
     @EventListener
     public void SessionDisconnectEvent(SessionDisconnectEvent event) {
-        System.out.println("debug");
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         UUID gameId = (UUID) headerAccessor.getSessionAttributes().get("gameId");
         UUID player = (UUID) headerAccessor.getSessionAttributes().get("player");
@@ -224,5 +220,21 @@ public class MessageController {
         message.setPlayer1GuessedCards(game.getPlayer1GuessedCards());
         message.setPlayer2GuessedCards(game.getPlayer2GuessedCards());
         return message;
+    }
+
+    public void setTokenService(TokenService tokenService) {
+        this.tokenService = tokenService;
+    }
+
+    public void setMemoUsersService(MemoUsersService memoUsersService) {
+        this.memoUsersService = memoUsersService;
+    }
+
+    public void setMultiPlayerService(MultiPlayerService multiPlayerService) {
+        this.multiPlayerService = multiPlayerService;
+    }
+
+    public void setMessagingTemplate(SimpMessagingTemplate messagingTemplate) {
+        this.messagingTemplate = messagingTemplate;
     }
 }

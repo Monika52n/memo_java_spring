@@ -1,5 +1,6 @@
 package com.memo.game.service;
 
+import com.memo.game.dto.UserNameSearcher;
 import com.memo.game.entity.MemoUsers;
 import com.memo.game.repo.MemoUsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class MemoUsersService {
+public class MemoUsersService implements UserNameSearcher {
     private final MemoUsersRepository gameRepository;
 
     @Autowired
@@ -31,6 +32,7 @@ public class MemoUsersService {
         return gameRepository.findByUserName(username);
     }
 
+    @Override
     public String getUserNameById(UUID id) {
         if(id!=null && gameRepository.findById(id).isPresent()) {
             MemoUsers user = gameRepository.findById(id).get();
@@ -38,41 +40,4 @@ public class MemoUsersService {
         }
         return null;
     }
-    public boolean signIn(UUID userId) {
-        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            MemoUsers user = userOptional.get();
-            user.setSignedIn(true);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            gameRepository.save(user);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isSignedIn(UUID userId) {
-        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
-        if(userOptional.isPresent()) {
-            MemoUsers user = userOptional.get();
-            if(user.isSignedIn()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean signOut(UUID userId) {
-        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            MemoUsers user = userOptional.get();
-            user.setSignedIn(false);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            gameRepository.save(user);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 }

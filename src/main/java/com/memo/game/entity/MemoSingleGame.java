@@ -78,4 +78,8 @@ public class MemoSingleGame {
     public int getRemainingTime() {
         return remainingTime;
     }
+
+    public UUID getUserId() {
+        return userId;
+    }
 }

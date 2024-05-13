@@ -1,8 +1,5 @@
 package com.memo.game.controller;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memo.game.entity.MemoSingleGame;
 import com.memo.game.service.MemoSingleGameService;
 import com.memo.game.service.MultiPlayerStatService;
@@ -16,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -45,8 +41,11 @@ public class StatisticsController {
         if(userId==null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
         }
+        if(size<=0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: size");
+        }
 
-        int totalItems = memoSingleGameService.getTotalGamesCountByUserId(userId);
+        int totalItems = memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId);
 
         int totalPages;
         if(totalItems % size == 0 && totalItems!=0) {
@@ -55,15 +54,12 @@ public class StatisticsController {
             totalPages = (totalItems/size)+1;
         }
 
-        if(size<=0) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: size");
-        }
         if(page<=0 || page>totalPages) {
             System.out.println(page + " " + totalPages);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
         }
 
-        List<MemoSingleGame> responseList = memoSingleGameService.findGamesByUserId(userId, page-1, size);
+        List<MemoSingleGame> responseList = memoSingleGameService.findGamesByUserIdInDb(userId, page-1, size);
 
         Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("currentPage", page);
@@ -85,10 +81,9 @@ public class StatisticsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
         }
 
-        List<MemoSingleGame> games = memoSingleGameService.findGamesByUserId(userId);
-        SinglePlayerCreateStatService singlePlayerCreateStatService
-                = new SinglePlayerCreateStatService(games);
-        return ResponseEntity.ok(singlePlayerCreateStatService.getList());
+        List<MemoSingleGame> games = memoSingleGameService.findGamesByUserIdInDb(userId);
+        SinglePlayerCreateStatService singlePlayerCreateStatService = new SinglePlayerCreateStatService();
+        return ResponseEntity.ok(singlePlayerCreateStatService.addList(games));
     }
 
     @PostMapping("/api/multiPlayerStatistics")
@@ -98,7 +93,10 @@ public class StatisticsController {
         if (!tokenService.isTokenValid(token)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        List<Object> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
+        if(pairs<=0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
+        }
+        List<HashMap<String, Object>> leaderboard = multiPlayerStatService.getLeaderBoard(pairs);
         return ResponseEntity.ok(leaderboard);
     }
 }
