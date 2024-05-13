@@ -73,12 +73,4 @@ public class MemoUsersServiceTest {
         String userName = memoUsersService.getUserNameById(user1.getId());
         assertThat(userName).isEqualTo(name1);
     }
-
-    @Test
-    public void signInSignOutTest() {
-        assertThat(memoUsersService.signIn(user1.getId())).isEqualTo(true);
-        assertThat(memoUsersService.isSignedIn(user1.getId())).isEqualTo(true);
-        assertThat(memoUsersService.signOut(user1.getId())).isEqualTo(true);
-        assertThat(memoUsersService.isSignedIn(user1.getId())).isEqualTo(false);
-    }
 }

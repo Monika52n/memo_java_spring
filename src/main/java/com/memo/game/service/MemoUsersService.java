@@ -40,41 +40,4 @@ public class MemoUsersService implements UserNameSearcher {
         }
         return null;
     }
-    public boolean signIn(UUID userId) {
-        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            MemoUsers user = userOptional.get();
-            user.setSignedIn(true);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            gameRepository.save(user);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isSignedIn(UUID userId) {
-        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
-        if(userOptional.isPresent()) {
-            MemoUsers user = userOptional.get();
-            if(user.isSignedIn()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean signOut(UUID userId) {
-        Optional<MemoUsers> userOptional = gameRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            MemoUsers user = userOptional.get();
-            user.setSignedIn(false);
-            user.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            gameRepository.save(user);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 }
