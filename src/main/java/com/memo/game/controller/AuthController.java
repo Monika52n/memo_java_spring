@@ -79,11 +79,7 @@ public class AuthController {
             user = gameService.getByEmail(signInRequest.getEmail());
         }
         if(user!=null) {
-            if(user.isSignedIn()) {
-                return ResponseEntity.badRequest().body("User already signed in.");
-            }
             if(BCrypt.checkpw(signInRequest.getPassword(), user.getPassword())) {
-                gameService.signIn(user.getId());
                 String token = tokenService.generateJwtToken(user);
                 return ResponseEntity.ok(token);
             } else {
@@ -94,23 +90,11 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/api/signOut")
-    public ResponseEntity<Void> signOut(HttpServletRequest request) {
-        String token = tokenService.extractTokenFromRequest(request);
-        if (!tokenService.isTokenValid(token)) {
-            return ResponseEntity.badRequest().build();
-        } else {
-            gameService.signOut(tokenService.extractUserIdFromToken(token));
-            tokenBlacklistService.addToBlacklist(token);
-            return ResponseEntity.noContent().build();
-        }
-    }
-
     @PostMapping("api/getUserInfo")
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = tokenService.extractTokenFromRequest(request);
         if (!tokenService.isTokenValid(token)) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         UUID userId = tokenService.extractUserIdFromToken(token);

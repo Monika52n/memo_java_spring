@@ -129,7 +129,6 @@ public class AuthControllerTest {
     public void signInTest() throws Exception {
         when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
         when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
-        when(memoUsersService.signIn(memoUser.getId())).thenReturn(true);
         when(tokenService.generateJwtToken(memoUser)).thenReturn(token);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
@@ -152,24 +151,9 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void whenAlreadySignedInThenBadRequest() throws Exception {
-        memoUser.setSignedIn(true);
-        when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
-        when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
-        when(memoUsersService.signIn(memoUser.getId())).thenReturn(true);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(authRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("User already signed in.")));
-    }
-
-    @Test
     public void whenEmailOrUserNameIsIncorrectSignInThenUnauthorized() throws Exception {
         when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(null);
         when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(null);
-        when(memoUsersService.signIn(memoUser.getId())).thenReturn(true);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -182,7 +166,6 @@ public class AuthControllerTest {
     public void whenPasswordIsIncorrectSignInThenUnauthorized() throws Exception {
         when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
         when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
-        when(memoUsersService.signIn(memoUser.getId())).thenReturn(true);
         authRequest.setPassword("incorrectPassword");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
@@ -193,33 +176,14 @@ public class AuthControllerTest {
     }
 
     @Test
-    public void whenTokenIsValidSignOutThenSignOutAndNoContent() throws Exception {
-        String validToken = "valid-token";
-        when(tokenService.extractTokenFromRequest(any())).thenReturn(validToken);
-        when(tokenService.isTokenValid(validToken)).thenReturn(true);
-        when(tokenService.extractUserIdFromToken(validToken)).thenReturn(memoUser.getId());
-        when(memoUsersService.signOut(memoUser.getId())).thenReturn(true);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/signOut")
-                .header("Authorization", "Bearer " + validToken))
-                .andExpect(status().isNoContent());
-
-        verify(memoUsersService).signOut(memoUser.getId());
-        verify(tokenBlacklistService).addToBlacklist(validToken);
-    }
-
-    @Test
-    public void whenTokenIsInvalidSignOutThenBadRequest() throws Exception {
+    public void whenTokenIsInvalidGetUserInfoThenBadRequest() throws Exception {
         String invalidToken = "invalid-token";
         when(tokenService.extractTokenFromRequest(any())).thenReturn(invalidToken);
         when(tokenService.isTokenValid(invalidToken)).thenReturn(false);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/signOut")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/getUserInfo")
                 .header("Authorization", "Bearer " + invalidToken))
-                .andExpect(status().isBadRequest());
-
-        verify(memoUsersService, never()).signOut(any());
-        verify(tokenBlacklistService, never()).addToBlacklist(anyString());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

@@ -46,6 +46,16 @@ public class MemoSingleGameService implements GameSaver {
         return gameRepository.countByUserId(userId);
     }
 
+    /*private SinglePlayer getGameByUser(UUID userId) {
+        for(Map.Entry<UUID, UUID> entry : playsWithUsers.entrySet()) {
+            if(entry.getValue().equals(userId)) {
+                UUID playId = entry.getKey();
+                return getSinglePlayerByGameIdFromList(playId);
+            }
+        }
+        return null;
+    }*/
+
     public void addSinglePlayerToList(SinglePlayer game, UUID userId) {
         plays.add(game);
         playsWithUsers.put(game.getPlayId(), userId);

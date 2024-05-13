@@ -57,21 +57,22 @@ public class MessageController {
      * @param message the message from the client containing the player's name
      * @return the current state of the game, or an error message if the player was unable to join
      */
-    private MultiPlayerMessage createErrorMessage(String content) {
+    private MultiPlayerMessage createErrorMessage(String content, UUID playerId) {
         MultiPlayerMessage responseMessage = new MultiPlayerMessage(memoUsersService);
         responseMessage.setType("error");
         responseMessage.setContent(content);
+        responseMessage.setPlayer1(playerId);
         return responseMessage;
     }
     @MessageMapping("/game.join")
     @SendTo("/topic/game.state")
     public MultiPlayerMessage joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
         if (!tokenService.isTokenValid(message.getToken())) {
-            return createErrorMessage("Unauthorized");
+            return createErrorMessage("Unauthorized", null);
         }
         UUID playerId = tokenService.extractUserIdFromToken(message.getToken());
         if(playerId==null) {
-            return createErrorMessage("User not found");
+            return createErrorMessage("User not found", null);
         }
 
         MultiPlayer game;
@@ -84,20 +85,20 @@ public class MessageController {
                 }
                 catch(IllegalArgumentException e) {
                     if(message.getNumOfPairs()<=0) {
-                        return createErrorMessage("Incorrect params");
+                        return createErrorMessage("Incorrect params", playerId);
                     }
                 }
             }
             game = multiPlayerService.joinGameWithFriend(playerId, message.getNumOfPairs(), gameId);
         } else {
             if(message.getNumOfPairs()<=0) {
-                return createErrorMessage("Incorrect params");
+                return createErrorMessage("Incorrect params", playerId);
             }
             game = multiPlayerService.joinGame(playerId, message.getNumOfPairs());
         }
 
         if (game == null || game.getPlayId()==null) {
-            return createErrorMessage("Cannot join");
+            return createErrorMessage("Cannot join", playerId);
         }
 
         headerAccessor.getSessionAttributes().put("gameId", game.getPlayId());
@@ -144,28 +145,28 @@ public class MessageController {
 
         if (!tokenService.isTokenValid(token)) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
-                    createErrorMessage("Unauthorized"));
+                    createErrorMessage("Unauthorized", null));
             return;
         }
         UUID player = tokenService.extractUserIdFromToken(token);
         if(player==null) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
-                    createErrorMessage("Invalid token"));
+                    createErrorMessage("Invalid token", null));
             return;
         }
         if (game == null) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
-                    createErrorMessage("Game not found or is already over."));
+                    createErrorMessage("Game not found or is already over.", player));
             return;
         }
         if (!game.isGameStarted()) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
-                    createErrorMessage("Game is waiting for another player to join."));
+                    createErrorMessage("Game is waiting for another player to join.", player));
             return;
         }
         if (!game.isPlayersTurn(player)) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
-                    createErrorMessage("Not your turn"));
+                    createErrorMessage("Not your turn", player));
             return;
         }
 
@@ -174,7 +175,7 @@ public class MessageController {
             lastMove = game.getCard(player, index);
         } catch (Exception e) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
-                    createErrorMessage("Incorrect params"));
+                    createErrorMessage("Incorrect params", player));
             return;
         }
 
