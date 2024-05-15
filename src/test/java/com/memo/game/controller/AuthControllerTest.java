@@ -44,11 +44,11 @@ public class AuthControllerTest {
     private AuthRequest authRequest;
     private MemoUsers memoUser;
     private String token;
+    String userName = "alma";
+    String email = "alma@gmail.com";
+    String password = "alma12";
     @BeforeEach
     public void setUp() {
-        String userName = "alma";
-        String email = "alma@gmail.com";
-        String password = "alma12";
         UUID userId = UUID.randomUUID();
         authRequest = new AuthRequest();
         authRequest.setUsername(userName);
@@ -60,6 +60,14 @@ public class AuthControllerTest {
         token = "token123";
         when(tokenBlacklistService.isBlacklisted(any())).thenReturn(false);
         when(tokenBlacklistService.addToBlacklist(any())).thenReturn(false);
+    }
+
+    private AuthRequest createAuthRequest(String userName, String password, String email) {
+        AuthRequest authRequest = new AuthRequest();
+        authRequest.setEmail(email);
+        authRequest.setUsername(userName);
+        authRequest.setPassword(password);
+        return authRequest;
     }
 
     @Test
@@ -116,13 +124,41 @@ public class AuthControllerTest {
         when(memoUsersService.getByUserName(any())).thenReturn(null);
         when(memoUsersService.getByEmail(any())).thenReturn(null);
         when(memoUsersService.saveUser(any())).thenReturn(null);
-        authRequest.setEmail("incorrectGmail");
+        authRequest.setEmail("almavhjfehabr");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("Incorrect email format!")));
+    }
+
+    @Test
+    public void whenIncorrectUserNameRegisterThenBadRequest() throws Exception {
+        when(memoUsersService.getByUserName(any())).thenReturn(null);
+        when(memoUsersService.getByEmail(any())).thenReturn(null);
+        when(memoUsersService.saveUser(any())).thenReturn(null);
+        authRequest.setUsername("al");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Username must be at least 4 characters long with no whitespaces!")));
+    }
+
+    @Test
+    public void whenIncorrectPasswordRegisterThenBadRequest() throws Exception {
+        when(memoUsersService.getByUserName(any())).thenReturn(null);
+        when(memoUsersService.getByEmail(any())).thenReturn(null);
+        when(memoUsersService.saveUser(any())).thenReturn(null);
+        authRequest.setPassword("   dcfvunk ");
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(authRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Password must be at least 6 characters long with no whitespaces!")));
     }
 
     @Test

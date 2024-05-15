@@ -49,6 +49,12 @@ public class AuthController {
         if(gameService.getByUserName(userName)!=null) {
             return ResponseEntity.badRequest().body("Existing username!");
         }
+        if(userName.length()<4 || userName.matches(".*\\s.*")) {
+            return ResponseEntity.badRequest().body("Username must be at least 4 characters long with no whitespaces!");
+        }
+        if(password.length()<6 || password.matches(".*\\s.*")) {
+            return ResponseEntity.badRequest().body("Password must be at least 6 characters long with no whitespaces!");
+        }
 
         Pattern pattern = Pattern.compile(EMAIL_REGEX);
         Matcher matcher = pattern.matcher(email);
