@@ -55,7 +55,6 @@ public class StatisticsController {
         }
 
         if(page<=0 || page>totalPages) {
-            System.out.println(page + " " + totalPages);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
         }
 
