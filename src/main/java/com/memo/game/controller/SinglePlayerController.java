@@ -2,7 +2,7 @@ package com.memo.game.controller;
 
 import com.memo.game.dto.IndexRequest;
 import com.memo.game.dto.StartSinglePlayerRequest;
-import com.memo.game.model.SinglePlayer;
+import com.memo.game.gameModel.SinglePlayer;
 import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;

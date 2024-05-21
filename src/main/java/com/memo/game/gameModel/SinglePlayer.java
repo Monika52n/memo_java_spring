@@ -1,4 +1,6 @@
-package com.memo.game.model;
+package com.memo.game.gameModel;
+
+import com.memo.game.service.GameSaver;
 
 import java.util.*;
 

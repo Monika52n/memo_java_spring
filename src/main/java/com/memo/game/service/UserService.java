@@ -1,6 +1,5 @@
 package com.memo.game.service;
 
-import com.memo.game.dto.UserNameSearcher;
 import com.memo.game.entity.MemoUser;
 import com.memo.game.repo.MemoUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

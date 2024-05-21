@@ -1,7 +1,8 @@
 package com.memo.game.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.memo.game.model.MultiPlayer;
+import com.memo.game.gameModel.MultiPlayer;
+import com.memo.game.service.UserNameSearcher;
 
 import java.util.Map;
 import java.util.UUID;

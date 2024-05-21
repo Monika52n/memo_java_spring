@@ -3,7 +3,7 @@ package com.memo.game.controller;
 import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
-import com.memo.game.model.MultiPlayer;
+import com.memo.game.gameModel.MultiPlayer;
 import com.memo.game.service.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
