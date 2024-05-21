@@ -1,9 +1,8 @@
 package com.memo.game.service;
 
-import com.memo.game.entity.MemoMultiGame;
-import com.memo.game.entity.MemoUsers;
+import com.memo.game.entity.MemoUser;
 import com.memo.game.repo.MemoMultiGameRepository;
-import com.memo.game.repo.MemoUsersRepository;
+import com.memo.game.repo.MemoUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,17 +12,17 @@ import java.util.stream.Collectors;
 @Service
 public class MultiPlayerStatService {
     private final MemoMultiGameRepository memoMultiGameRepository;
-    private final MemoUsersRepository memoUsersRepository;
+    private final MemoUserRepository memoUserRepository;
     @Autowired
-    public  MultiPlayerStatService(MemoMultiGameRepository memoMultiGameRepository, MemoUsersRepository memoUsersRepository) {
+    public  MultiPlayerStatService(MemoMultiGameRepository memoMultiGameRepository, MemoUserRepository memoUserRepository) {
         this.memoMultiGameRepository = memoMultiGameRepository;
-        this.memoUsersRepository = memoUsersRepository;
+        this.memoUserRepository = memoUserRepository;
     }
 
     private HashMap<String, Integer> getUsersWithWins(int pairs) {
         HashMap<String, Integer> leaderBoard = new HashMap<>();
-        List<MemoUsers> users = memoUsersRepository.findAll();
-        for(MemoUsers user : users) {
+        List<MemoUser> users = memoUserRepository.findAll();
+        for(MemoUser user : users) {
             Integer wins = memoMultiGameRepository.getWins((user.getId()).toString(), pairs);
             leaderBoard.put(user.getUserName(), wins);
         }

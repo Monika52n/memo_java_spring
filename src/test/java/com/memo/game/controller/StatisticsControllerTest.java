@@ -2,17 +2,14 @@ package com.memo.game.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memo.game.entity.MemoSingleGame;
-import com.memo.game.model.SinglePlayer;
-import com.memo.game.service.MemoSingleGameService;
+import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.MultiPlayerStatService;
 import com.memo.game.service.TokenBlacklistService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -42,7 +39,7 @@ public class StatisticsControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private MemoSingleGameService memoSingleGameService;
+    private SinglePlayerService singlePlayerService;
     @MockBean
     private TokenBlacklistService tokenBlacklistService;
     @MockBean
@@ -82,8 +79,8 @@ public class StatisticsControllerTest {
         int totalItems = gamesList.size();
         int totalPages = gamesList.size()/10;
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
-        when(memoSingleGameService.getTotalGamesCountByUserIdFromDb(any(UUID.class))).thenReturn(totalItems);
-        when(memoSingleGameService.findGamesByUserIdInDb(any(UUID.class), anyInt(), anyInt())).thenReturn(gamesList);
+        when(singlePlayerService.getTotalGamesCountByUserIdFromDb(any(UUID.class))).thenReturn(totalItems);
+        when(singlePlayerService.findGamesByUserIdInDb(any(UUID.class), anyInt(), anyInt())).thenReturn(gamesList);
 
         mockMvc.perform(post("/api/singlePlayerStatistics/all")
                         .header("Authorization", "Bearer valid-token")
@@ -142,7 +139,7 @@ public class StatisticsControllerTest {
     @Test
     public void validRequestSummarized() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
-        when(memoSingleGameService.findGamesByUserIdInDb(any(UUID.class))).thenReturn(gamesList);
+        when(singlePlayerService.findGamesByUserIdInDb(any(UUID.class))).thenReturn(gamesList);
 
         mockMvc.perform(post("/api/singlePlayerStatistics/summarized")
                         .header("Authorization", "Bearer " + token))

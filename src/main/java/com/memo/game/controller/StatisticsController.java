@@ -1,9 +1,9 @@
 package com.memo.game.controller;
 
 import com.memo.game.entity.MemoSingleGame;
-import com.memo.game.service.MemoSingleGameService;
+import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.MultiPlayerStatService;
-import com.memo.game.service.SinglePlayerCreateStatService;
+import com.memo.game.service.SinglePlayerStatService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,13 @@ import java.util.List;
 
 @RestController
 public class StatisticsController {
-    private final MemoSingleGameService memoSingleGameService;
+    private final SinglePlayerService singlePlayerService;
     private final TokenService tokenService;
     private final MultiPlayerStatService multiPlayerStatService;
 
     @Autowired
-    public StatisticsController(MemoSingleGameService memoSingleGameService, TokenService tokenService, MultiPlayerStatService multiPlayerStatService) {
-        this.memoSingleGameService = memoSingleGameService;
+    public StatisticsController(SinglePlayerService singlePlayerService, TokenService tokenService, MultiPlayerStatService multiPlayerStatService) {
+        this.singlePlayerService = singlePlayerService;
         this.tokenService = tokenService;
         this.multiPlayerStatService = multiPlayerStatService;
     }
@@ -45,7 +45,7 @@ public class StatisticsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: size");
         }
 
-        int totalItems = memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId);
+        int totalItems = singlePlayerService.getTotalGamesCountByUserIdFromDb(userId);
 
         int totalPages;
         if(totalItems % size == 0 && totalItems!=0) {
@@ -55,11 +55,10 @@ public class StatisticsController {
         }
 
         if(page<=0 || page>totalPages) {
-            System.out.println(page + " " + totalPages);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect param: page");
         }
 
-        List<MemoSingleGame> responseList = memoSingleGameService.findGamesByUserIdInDb(userId, page-1, size);
+        List<MemoSingleGame> responseList = singlePlayerService.findGamesByUserIdInDb(userId, page-1, size);
 
         Map<String, Object> responseMap = new HashMap<String, Object>();
         responseMap.put("currentPage", page);
@@ -81,9 +80,9 @@ public class StatisticsController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found!");
         }
 
-        List<MemoSingleGame> games = memoSingleGameService.findGamesByUserIdInDb(userId);
-        SinglePlayerCreateStatService singlePlayerCreateStatService = new SinglePlayerCreateStatService();
-        return ResponseEntity.ok(singlePlayerCreateStatService.addList(games));
+        List<MemoSingleGame> games = singlePlayerService.findGamesByUserIdInDb(userId);
+        SinglePlayerStatService singlePlayerStatService = new SinglePlayerStatService();
+        return ResponseEntity.ok(singlePlayerStatService.addList(games));
     }
 
     @PostMapping("/api/multiPlayerStatistics")

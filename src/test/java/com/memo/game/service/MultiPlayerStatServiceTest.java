@@ -1,15 +1,12 @@
 package com.memo.game.service;
 
-import com.memo.game.entity.MemoUsers;
+import com.memo.game.entity.MemoUser;
 import com.memo.game.repo.MemoMultiGameRepository;
-import com.memo.game.repo.MemoUsersRepository;
+import com.memo.game.repo.MemoUserRepository;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.*;
@@ -23,21 +20,21 @@ public class MultiPlayerStatServiceTest {
     @Mock
     private static MemoMultiGameRepository memoMultiGameRepository;
     @Mock
-    private static MemoUsersRepository memoUsersRepository;
+    private static MemoUserRepository memoUserRepository;
     private static MultiPlayerStatService multiPlayerStatService;
-    private static final List<MemoUsers> userList = new ArrayList<>();
+    private static final List<MemoUser> userList = new ArrayList<>();
     private static final Integer numOfUsers = 6;
     @BeforeAll
     static public void setUp() {
         memoMultiGameRepository = mock(MemoMultiGameRepository.class);
-        memoUsersRepository = mock(MemoUsersRepository.class);
+        memoUserRepository = mock(MemoUserRepository.class);
 
         for(int i=0; i<numOfUsers; i++) {
-            MemoUsers user = new MemoUsers("testName" + i, "testName" + i + "@gmail.com", "password");
+            MemoUser user = new MemoUser("testName" + i, "testName" + i + "@gmail.com", "password");
             user.setId(UUID.randomUUID());
             userList.add(user);
         }
-        when(memoUsersRepository.findAll()).thenReturn(userList);
+        when(memoUserRepository.findAll()).thenReturn(userList);
 
         for(int i=0; i<numOfUsers; i++) {
             when(memoMultiGameRepository.getWins(
@@ -56,7 +53,7 @@ public class MultiPlayerStatServiceTest {
             )).thenReturn(i-i%2);
         }
 
-        multiPlayerStatService = new MultiPlayerStatService(memoMultiGameRepository, memoUsersRepository);
+        multiPlayerStatService = new MultiPlayerStatService(memoMultiGameRepository, memoUserRepository);
     }
 
     @Test

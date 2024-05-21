@@ -4,13 +4,11 @@ import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
 import com.memo.game.model.MultiPlayer;
-import com.memo.game.service.MemoUsersService;
+import com.memo.game.service.UserService;
 import com.memo.game.service.MultiPlayerService;
 import com.memo.game.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -22,7 +20,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -41,7 +38,7 @@ public class MessageController {
     @Autowired
     private TokenService tokenService;
     @Autowired
-    private MemoUsersService memoUsersService;
+    private UserService userService;
 
     /**
      * Manager for the Tic-Tac-Toe games.
@@ -58,7 +55,7 @@ public class MessageController {
      * @return the current state of the game, or an error message if the player was unable to join
      */
     private MultiPlayerMessage createErrorMessage(String content, UUID playerId) {
-        MultiPlayerMessage responseMessage = new MultiPlayerMessage(memoUsersService);
+        MultiPlayerMessage responseMessage = new MultiPlayerMessage(userService);
         responseMessage.setType("error");
         responseMessage.setContent(content);
         responseMessage.setPlayer1(playerId);
@@ -179,7 +176,7 @@ public class MessageController {
             return;
         }
 
-        MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game, memoUsersService);
+        MultiPlayerMessage gameStateMessage = new MultiPlayerMessage(game, userService);
         gameStateMessage.setType("game.move");
         gameStateMessage.setLastMove(lastMove);
 
@@ -208,7 +205,7 @@ public class MessageController {
     }
 
     private MultiPlayerMessage gameToMessage(MultiPlayer game) {
-        MultiPlayerMessage message = new MultiPlayerMessage(memoUsersService);
+        MultiPlayerMessage message = new MultiPlayerMessage(userService);
         message.setGameId(game.getPlayId());
         message.setPlayer1(game.getPlayer1Id());
         message.setPlayer2(game.getPlayer2Id());
@@ -226,8 +223,8 @@ public class MessageController {
         this.tokenService = tokenService;
     }
 
-    public void setMemoUsersService(MemoUsersService memoUsersService) {
-        this.memoUsersService = memoUsersService;
+    public void setMemoUsersService(UserService userService) {
+        this.userService = userService;
     }
 
     public void setMultiPlayerService(MultiPlayerService multiPlayerService) {

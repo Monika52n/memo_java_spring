@@ -89,6 +89,7 @@ public class SinglePlayer extends MemoGame {
         isGameOver = true;
         stopTimer();
         timeRemaining=0;
+        saveGame();
     }
 
     public void saveGame() {

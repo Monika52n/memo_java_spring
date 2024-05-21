@@ -1,4 +1,4 @@
-package com.memo.game.entity;
+package com.memo.game.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;

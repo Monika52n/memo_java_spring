@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class MemoSingleGameService implements GameSaver {
+public class SinglePlayerService implements GameSaver {
     private final List<SinglePlayer> plays = new ArrayList<SinglePlayer>();
     private final Map<UUID, UUID> playsWithUsers= new HashMap<UUID, UUID>();
     private final MemoSingleGameRepository gameRepository;
 
     @Autowired
-    public MemoSingleGameService(MemoSingleGameRepository gameRepository) {
+    public SinglePlayerService(MemoSingleGameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
 
@@ -45,16 +45,6 @@ public class MemoSingleGameService implements GameSaver {
     public int getTotalGamesCountByUserIdFromDb(UUID userId) {
         return gameRepository.countByUserId(userId);
     }
-
-    /*private SinglePlayer getGameByUser(UUID userId) {
-        for(Map.Entry<UUID, UUID> entry : playsWithUsers.entrySet()) {
-            if(entry.getValue().equals(userId)) {
-                UUID playId = entry.getKey();
-                return getSinglePlayerByGameIdFromList(playId);
-            }
-        }
-        return null;
-    }*/
 
     public void addSinglePlayerToList(SinglePlayer game, UUID userId) {
         plays.add(game);

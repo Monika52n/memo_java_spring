@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memo.game.dto.IndexRequest;
 import com.memo.game.dto.StartSinglePlayerRequest;
 import com.memo.game.model.SinglePlayer;
-import com.memo.game.service.MemoSingleGameService;
+import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.TokenBlacklistService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ public class SinglePlayerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private MemoSingleGameService memoSingleGameService;
+    private SinglePlayerService singlePlayerService;
     @MockBean
     private TokenService tokenService;
     @MockBean
@@ -44,7 +44,7 @@ public class SinglePlayerControllerTest {
     private SinglePlayer singlePlayer;
     @BeforeEach
     public void setUp() {
-        singlePlayer = new SinglePlayer(8, 60, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8, 60, singlePlayerService);
         token = "token123";
         when(tokenBlacklistService.isBlacklisted(any())).thenReturn(false);
         when(tokenBlacklistService.addToBlacklist(any())).thenReturn(false);
@@ -116,7 +116,7 @@ public class SinglePlayerControllerTest {
     public void getRemainingTimeTest() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/singlePlayer/getRemainingTime/{sessionId}", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -128,7 +128,7 @@ public class SinglePlayerControllerTest {
     public void getRemTimeWhenSessionNotFoundThenNotFoundResponse() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(null);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/singlePlayer/getRemainingTime/{sessionId}", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -140,7 +140,7 @@ public class SinglePlayerControllerTest {
     public void getCardsTest() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
 
         IndexRequest indexRequest = new IndexRequest();
         indexRequest.setIndex(0);
@@ -162,7 +162,7 @@ public class SinglePlayerControllerTest {
     public void getCardWhenInvalidRequestThenBadRequestResponse() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
 
         IndexRequest indexRequest = new IndexRequest();
         indexRequest.setIndex(-1);
@@ -177,7 +177,7 @@ public class SinglePlayerControllerTest {
     public void leaveGameThenNoContentReturned() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/singlePlayer/leaveGame/{sessionId}", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -188,7 +188,7 @@ public class SinglePlayerControllerTest {
     public void isPlayValidTestThenValid() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/singlePlayer/isPlayValid/{sessionId}", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON))
@@ -204,7 +204,7 @@ public class SinglePlayerControllerTest {
     public void isPlayValidTestThenInvalid() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
-        when(memoSingleGameService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(null);
+        when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/singlePlayer/isPlayValid/{sessionId}", UUID.randomUUID().toString())
                         .contentType(MediaType.APPLICATION_JSON))
