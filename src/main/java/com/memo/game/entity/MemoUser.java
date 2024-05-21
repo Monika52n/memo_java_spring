@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Table(name = "memo_users")
 public class MemoUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

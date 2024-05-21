@@ -1,7 +1,7 @@
 package com.memo.game.service;
 
 import com.memo.game.entity.MemoSingleGame;
-import com.memo.game.model.SinglePlayer;
+import com.memo.game.gameModel.SinglePlayer;
 import com.memo.game.repo.MemoSingleGameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

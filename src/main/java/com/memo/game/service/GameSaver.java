@@ -1,4 +1,4 @@
-package com.memo.game.model;
+package com.memo.game.service;
 
 import java.util.UUID;
 

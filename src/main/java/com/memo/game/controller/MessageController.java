@@ -3,7 +3,7 @@ package com.memo.game.controller;
 import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
-import com.memo.game.model.MultiPlayer;
+import com.memo.game.gameModel.MultiPlayer;
 import com.memo.game.service.UserService;
 import com.memo.game.service.MultiPlayerService;
 import com.memo.game.service.TokenService;

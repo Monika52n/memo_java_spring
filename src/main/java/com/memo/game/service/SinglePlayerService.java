@@ -1,8 +1,7 @@
 package com.memo.game.service;
 
 import com.memo.game.entity.MemoSingleGame;
-import com.memo.game.model.GameSaver;
-import com.memo.game.model.SinglePlayer;
+import com.memo.game.gameModel.SinglePlayer;
 import com.memo.game.repo.MemoSingleGameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;

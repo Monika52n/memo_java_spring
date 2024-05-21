@@ -1,8 +1,7 @@
 package com.memo.game.service;
 
 import com.memo.game.entity.MemoMultiGame;
-import com.memo.game.model.MultiPlayer;
-import com.memo.game.model.SinglePlayer;
+import com.memo.game.gameModel.MultiPlayer;
 import com.memo.game.repo.MemoMultiGameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.memo.game.model;
+package com.memo.game.gameModel;
 
 import java.util.*;
 
