@@ -1,16 +1,13 @@
 package com.memo.game.model;
 
-import com.memo.game.service.MemoSingleGameService;
+import com.memo.game.service.SinglePlayerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,13 +19,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(SpringExtension.class)
 public class SinglePlayerTest {
     @Mock
-    MemoSingleGameService memoSingleGameService;
+    SinglePlayerService singlePlayerService;
     SinglePlayer singlePlayer;
 
     @BeforeEach
     void setUp() {
-        memoSingleGameService = mock(MemoSingleGameService.class);
-        when(memoSingleGameService.saveGame(any())).thenReturn(null);
+        singlePlayerService = mock(SinglePlayerService.class);
+        when(singlePlayerService.saveGame(any())).thenReturn(null);
     }
 
     void setBoardCardsInOrder(SinglePlayer singlePlayer) {
@@ -43,7 +40,7 @@ public class SinglePlayerTest {
 
     @Test
     void constructorTest() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
 
         assertThat(singlePlayer).isNotNull();
         assertThat(singlePlayer.getNumOfGuessedPairs()).isEqualTo(0);
@@ -56,20 +53,20 @@ public class SinglePlayerTest {
     @Test
     void constructorThrowsIllegalArgumentExceptionWhenNumberOfPairsIsNegative() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new SinglePlayer(-1, 120, memoSingleGameService);
+            new SinglePlayer(-1, 120, singlePlayerService);
         });
     }
 
     @Test
     void constructorThrowsIllegalArgumentExceptionWhenInitialTimeIsNegative() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new SinglePlayer(8, -10, memoSingleGameService);
+            new SinglePlayer(8, -10, singlePlayerService);
         });
     }
 
     @Test
     void getFirstCardTest() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
 
         Map<Integer, Integer> cards = singlePlayer.getCard(3);
@@ -80,7 +77,7 @@ public class SinglePlayerTest {
 
     @Test
     void getSecondCardTest() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
         singlePlayer.getCard(3);
 
@@ -92,7 +89,7 @@ public class SinglePlayerTest {
 
     @Test
     void getArePreviousCardsEqualTest() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
 
         singlePlayer.getCard(0);
@@ -106,7 +103,7 @@ public class SinglePlayerTest {
     @Test
     void winGameTest() {
         int numberOfPairs = 8;
-        singlePlayer = new SinglePlayer(numberOfPairs,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(numberOfPairs,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
 
         for(int i =0; i<numberOfPairs*2; i++) {
@@ -119,7 +116,7 @@ public class SinglePlayerTest {
 
     @Test
     void getCardThrowsArrayIndexOutOfBoundsExceptionWhenIncorrectIndex() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
 
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
             singlePlayer.getCard(-1);
@@ -131,7 +128,7 @@ public class SinglePlayerTest {
 
     @Test
     void getCardThrowsIllegalArgumentExceptionWhenSameCard() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         singlePlayer.getCard(0);
         assertThrows(IllegalArgumentException.class, () -> {
             singlePlayer.getCard(0);
@@ -140,7 +137,7 @@ public class SinglePlayerTest {
 
     @Test
     void getCardGettingSamePairs() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
         for(int i = 0; i<3; i++) {
             singlePlayer.getCard(0);
@@ -151,13 +148,13 @@ public class SinglePlayerTest {
 
     @Test
     void isTimerRunningTest() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         assertThat(singlePlayer.getTimeRemaining()).isLessThanOrEqualTo(120);
     }
 
     @Test
     void leaveGameTest() {
-        singlePlayer = new SinglePlayer(8,120, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         singlePlayer.getCard(0);
         singlePlayer.leaveGame();
         assertThat(singlePlayer.isGameOver()).isTrue();

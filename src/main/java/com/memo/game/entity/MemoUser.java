@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-public class MemoUsers {
+public class MemoUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -23,7 +23,7 @@ public class MemoUsers {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp updatedAt;
 
-    public MemoUsers(String userName, String email, String password) {
+    public MemoUser(String userName, String email, String password) {
         this.userName = userName;
         this.email = email;
         this.password = password;
@@ -31,7 +31,7 @@ public class MemoUsers {
         this.updatedAt = Timestamp.valueOf(LocalDateTime.now());
     }
 
-    public MemoUsers() {
+    public MemoUser() {
         this.createdAt = Timestamp.valueOf(LocalDateTime.now());
         this.updatedAt = Timestamp.valueOf(LocalDateTime.now());
     }

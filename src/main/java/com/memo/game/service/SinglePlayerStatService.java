@@ -1,18 +1,17 @@
 package com.memo.game.service;
 
 import com.memo.game.entity.MemoSingleGame;
-import com.memo.game.entity.ModeStat;
+import com.memo.game.dto.ModeStat;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
-public class SinglePlayerCreateStatService  {
+public class SinglePlayerStatService {
     private final ArrayList<ModeStat> modeStats = new ArrayList<ModeStat>();
 
-    public SinglePlayerCreateStatService() {}
+    public SinglePlayerStatService() {}
 
     public List<ModeStat> addList(List<MemoSingleGame> games) {
         modeStats.clear();

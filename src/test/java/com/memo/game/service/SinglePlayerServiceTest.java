@@ -21,8 +21,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-public class MemoSingleGameServiceTest {
-    private MemoSingleGameService memoSingleGameService;
+public class SinglePlayerServiceTest {
+    private SinglePlayerService singlePlayerService;
     @Mock
     private MemoSingleGameRepository memoSingleGameRepository;
 
@@ -40,7 +40,7 @@ public class MemoSingleGameServiceTest {
         MemoSingleGame game1 = new MemoSingleGame(gameId1, userId1, true, 10, 8, 60);
         MemoSingleGame game2 = new MemoSingleGame(gameId2, userId1, false, 0, 16, 120);
         MemoSingleGame game3 = new MemoSingleGame(gameId3, userId2, true, 15, 24, 300);
-        singlePlayer = new SinglePlayer(8, 60, memoSingleGameService);
+        singlePlayer = new SinglePlayer(8, 60, singlePlayerService);
 
         List<MemoSingleGame> listOfGames1 = new ArrayList<>();
         listOfGames1.add(game1);
@@ -60,13 +60,13 @@ public class MemoSingleGameServiceTest {
         when(memoSingleGameRepository.save(game2)).thenReturn(game2);
         when(memoSingleGameRepository.save(game3)).thenReturn(game3);
 
-        memoSingleGameService = new MemoSingleGameService(memoSingleGameRepository);
+        singlePlayerService = new SinglePlayerService(memoSingleGameRepository);
     }
 
     @Test
     public void findGamesByUserIdTest() {
-        List<MemoSingleGame> games1 = memoSingleGameService.findGamesByUserIdInDb(userId1);
-        List<MemoSingleGame> games2 = memoSingleGameService.findGamesByUserIdInDb(userId2);
+        List<MemoSingleGame> games1 = singlePlayerService.findGamesByUserIdInDb(userId1);
+        List<MemoSingleGame> games2 = singlePlayerService.findGamesByUserIdInDb(userId2);
 
         assertThat(games1).isNotNull();
         assertThat(games1).extracting(MemoSingleGame::getUserId).containsOnly(userId1);
@@ -78,14 +78,14 @@ public class MemoSingleGameServiceTest {
 
     @Test
     public void getTotalGamesCountByUserIdTest() {
-        assertThat(memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId1)).isEqualTo(2);
-        assertThat(memoSingleGameService.getTotalGamesCountByUserIdFromDb(userId2)).isEqualTo(1);
+        assertThat(singlePlayerService.getTotalGamesCountByUserIdFromDb(userId1)).isEqualTo(2);
+        assertThat(singlePlayerService.getTotalGamesCountByUserIdFromDb(userId2)).isEqualTo(1);
     }
 
     @Test
     public void findGamesByUserIdPageableTest() {
-        List<MemoSingleGame> games1 = memoSingleGameService.findGamesByUserIdInDb(userId1, 1, 10);
-        List<MemoSingleGame> games2 = memoSingleGameService.findGamesByUserIdInDb(userId2, 1, 10);
+        List<MemoSingleGame> games1 = singlePlayerService.findGamesByUserIdInDb(userId1, 1, 10);
+        List<MemoSingleGame> games2 = singlePlayerService.findGamesByUserIdInDb(userId2, 1, 10);
 
         assertThat(games1).isNotNull();
         assertThat(games1).extracting(MemoSingleGame::getUserId).containsOnly(userId1);
@@ -97,11 +97,11 @@ public class MemoSingleGameServiceTest {
 
     @Test
     public void addGameTest() {
-        memoSingleGameService.addSinglePlayerToList(singlePlayer, userId1);
-        memoSingleGameService.addSinglePlayerToList( new SinglePlayer(16, 120, memoSingleGameService), userId2);
+        singlePlayerService.addSinglePlayerToList(singlePlayer, userId1);
+        singlePlayerService.addSinglePlayerToList( new SinglePlayer(16, 120, singlePlayerService), userId2);
 
-        List<SinglePlayer> plays = memoSingleGameService.getPlays();
-        Map<UUID, UUID> playsWithUsers = memoSingleGameService.getPlaysWithUsers();
+        List<SinglePlayer> plays = singlePlayerService.getPlays();
+        Map<UUID, UUID> playsWithUsers = singlePlayerService.getPlaysWithUsers();
 
         assertThat(plays).isNotNull();
         assertThat(plays.getFirst()).isNotNull();
@@ -112,22 +112,22 @@ public class MemoSingleGameServiceTest {
 
     @Test
     public void getSinglePlayerByGameIdTest() {
-        memoSingleGameService.addSinglePlayerToList(singlePlayer, userId1);
-        SinglePlayer play = memoSingleGameService.getSinglePlayerByGameIdFromList(singlePlayer.getPlayId());
+        singlePlayerService.addSinglePlayerToList(singlePlayer, userId1);
+        SinglePlayer play = singlePlayerService.getSinglePlayerByGameIdFromList(singlePlayer.getPlayId());
         assertThat(play).isNotNull();
         assertThat(play.getPlayId()).isEqualTo(singlePlayer.getPlayId());
     }
 
     @Test
     public void removeGame() {
-        memoSingleGameService.addSinglePlayerToList(singlePlayer, userId2);
-        memoSingleGameService.addSinglePlayerToList( new SinglePlayer(16, 120, memoSingleGameService), userId1);
-        memoSingleGameService.addSinglePlayerToList( new SinglePlayer(8, 120, memoSingleGameService), userId2);
+        singlePlayerService.addSinglePlayerToList(singlePlayer, userId2);
+        singlePlayerService.addSinglePlayerToList( new SinglePlayer(16, 120, singlePlayerService), userId1);
+        singlePlayerService.addSinglePlayerToList( new SinglePlayer(8, 120, singlePlayerService), userId2);
 
-        memoSingleGameService.removeSinglePlayerFromList(singlePlayer);
+        singlePlayerService.removeSinglePlayerFromList(singlePlayer);
 
-        List<SinglePlayer> plays = memoSingleGameService.getPlays();
-        Map<UUID, UUID> playsWithUsers = memoSingleGameService.getPlaysWithUsers();
+        List<SinglePlayer> plays = singlePlayerService.getPlays();
+        Map<UUID, UUID> playsWithUsers = singlePlayerService.getPlaysWithUsers();
         assertThat(plays).isNotNull();
         assertThat(plays.size()).isEqualTo(2);
         assertThat(playsWithUsers).isNotNull();

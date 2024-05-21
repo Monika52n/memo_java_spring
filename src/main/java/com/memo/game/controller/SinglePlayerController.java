@@ -3,7 +3,7 @@ package com.memo.game.controller;
 import com.memo.game.dto.IndexRequest;
 import com.memo.game.dto.StartSinglePlayerRequest;
 import com.memo.game.model.SinglePlayer;
-import com.memo.game.service.MemoSingleGameService;
+import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +16,12 @@ import java.util.*;
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class SinglePlayerController {
-    private final MemoSingleGameService memoSingleGameService;
+    private final SinglePlayerService singlePlayerService;
     private final TokenService tokenService;
     @Autowired
-    public SinglePlayerController(MemoSingleGameService memoSingleGameService,
+    public SinglePlayerController(SinglePlayerService singlePlayerService,
                                   TokenService tokenService) {
-        this.memoSingleGameService = memoSingleGameService;
+        this.singlePlayerService = singlePlayerService;
         this.tokenService = tokenService;
     }
     @PostMapping("/api/singlePlayer/startSinglePlayer")
@@ -39,7 +39,7 @@ public class SinglePlayerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
-        SinglePlayer singleplayer = new SinglePlayer(numberOfPairs, initialTime, memoSingleGameService);
+        SinglePlayer singleplayer = new SinglePlayer(numberOfPairs, initialTime, singlePlayerService);
 
         UUID userId = tokenService.extractUserIdFromToken(token);
         if(userId==null) {
@@ -47,7 +47,7 @@ public class SinglePlayerController {
         }
 
         String sessionId = singleplayer.getPlayId().toString();
-        memoSingleGameService.addSinglePlayerToList(singleplayer, userId);
+        singlePlayerService.addSinglePlayerToList(singleplayer, userId);
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("sessionId", sessionId);
         return ResponseEntity.ok(responseMap);
@@ -62,13 +62,13 @@ public class SinglePlayerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        SinglePlayer singleplayer = memoSingleGameService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
+        SinglePlayer singleplayer = singlePlayerService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
         if (singleplayer == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Session not found!");
         }
 
         if(singleplayer.isGameOver()) {
-            memoSingleGameService.removeSinglePlayerFromList(singleplayer);
+            singlePlayerService.removeSinglePlayerFromList(singleplayer);
         }
 
         int remainingTime = singleplayer.getTimeRemaining();
@@ -86,7 +86,7 @@ public class SinglePlayerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        SinglePlayer singleplayer = memoSingleGameService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
+        SinglePlayer singleplayer = singlePlayerService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
         if (singleplayer == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Session not found!");
         }
@@ -100,7 +100,7 @@ public class SinglePlayerController {
         }
 
         if(singleplayer.isGameOver()) {
-            memoSingleGameService.removeSinglePlayerFromList(singleplayer);
+            singlePlayerService.removeSinglePlayerFromList(singleplayer);
         }
 
         Map<String, Object> responseMap = new HashMap<>();
@@ -124,13 +124,13 @@ public class SinglePlayerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        SinglePlayer singleplayer = memoSingleGameService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
+        SinglePlayer singleplayer = singlePlayerService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
         if (singleplayer == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Session not found!");
         }
 
         singleplayer.leaveGame();
-        memoSingleGameService.removeSinglePlayerFromList(singleplayer);
+        singlePlayerService.removeSinglePlayerFromList(singleplayer);
         return ResponseEntity.noContent().build();
     }
 
@@ -142,7 +142,7 @@ public class SinglePlayerController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        SinglePlayer singleplayer = memoSingleGameService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
+        SinglePlayer singleplayer = singlePlayerService.getSinglePlayerByGameIdFromList(UUID.fromString(sessionId));
         Map<String, Object> responseMap = new HashMap<>();
         if (singleplayer == null) {
             responseMap.put("isValid" , false);

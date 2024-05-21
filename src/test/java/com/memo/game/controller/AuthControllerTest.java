@@ -2,12 +2,11 @@ package com.memo.game.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memo.game.dto.AuthRequest;
-import com.memo.game.entity.MemoUsers;
-import com.memo.game.service.MemoUsersService;
+import com.memo.game.entity.MemoUser;
+import com.memo.game.service.UserService;
 import com.memo.game.service.TokenBlacklistService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
@@ -18,7 +17,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.UUID;
 
@@ -36,13 +34,13 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
     @MockBean
-    private MemoUsersService memoUsersService;
+    private UserService userService;
     @MockBean
     private TokenService tokenService;
     @MockBean
     private TokenBlacklistService tokenBlacklistService;
     private AuthRequest authRequest;
-    private MemoUsers memoUser;
+    private MemoUser memoUser;
     private String token;
     String userName = "alma";
     String email = "alma@gmail.com";
@@ -55,7 +53,7 @@ public class AuthControllerTest {
         authRequest.setEmail(email);
         authRequest.setPassword(password);
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        memoUser = new MemoUsers(userName, email, hashedPassword);
+        memoUser = new MemoUser(userName, email, hashedPassword);
         memoUser.setId(userId);
         token = "token123";
         when(tokenBlacklistService.isBlacklisted(any())).thenReturn(false);
@@ -72,9 +70,9 @@ public class AuthControllerTest {
 
     @Test
     public void registerTest() throws Exception {
-        when(memoUsersService.getByUserName(any())).thenReturn(null);
-        when(memoUsersService.getByEmail(any())).thenReturn(null);
-        when(memoUsersService.saveUser(any())).thenReturn(null);
+        when(userService.getByUserName(any())).thenReturn(null);
+        when(userService.getByEmail(any())).thenReturn(null);
+        when(userService.saveUser(any())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -95,9 +93,9 @@ public class AuthControllerTest {
 
     @Test
     public void whenExistingEmailRegisterThenBadRequest() throws Exception {
-        when(memoUsersService.getByUserName(any())).thenReturn(null);
-        when(memoUsersService.getByEmail(any())).thenReturn(memoUser);
-        when(memoUsersService.saveUser(any())).thenReturn(null);
+        when(userService.getByUserName(any())).thenReturn(null);
+        when(userService.getByEmail(any())).thenReturn(memoUser);
+        when(userService.saveUser(any())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -108,9 +106,9 @@ public class AuthControllerTest {
 
     @Test
     public void whenExistingUserNameRegisterThenBadRequest() throws Exception {
-        when(memoUsersService.getByUserName(any())).thenReturn(memoUser);
-        when(memoUsersService.getByEmail(any())).thenReturn(null);
-        when(memoUsersService.saveUser(any())).thenReturn(null);
+        when(userService.getByUserName(any())).thenReturn(memoUser);
+        when(userService.getByEmail(any())).thenReturn(null);
+        when(userService.saveUser(any())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,9 +119,9 @@ public class AuthControllerTest {
 
     @Test
     public void whenIncorrectEmailFormatRegisterThenBadRequest() throws Exception {
-        when(memoUsersService.getByUserName(any())).thenReturn(null);
-        when(memoUsersService.getByEmail(any())).thenReturn(null);
-        when(memoUsersService.saveUser(any())).thenReturn(null);
+        when(userService.getByUserName(any())).thenReturn(null);
+        when(userService.getByEmail(any())).thenReturn(null);
+        when(userService.saveUser(any())).thenReturn(null);
         authRequest.setEmail("almavhjfehabr");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
@@ -135,9 +133,9 @@ public class AuthControllerTest {
 
     @Test
     public void whenIncorrectUserNameRegisterThenBadRequest() throws Exception {
-        when(memoUsersService.getByUserName(any())).thenReturn(null);
-        when(memoUsersService.getByEmail(any())).thenReturn(null);
-        when(memoUsersService.saveUser(any())).thenReturn(null);
+        when(userService.getByUserName(any())).thenReturn(null);
+        when(userService.getByEmail(any())).thenReturn(null);
+        when(userService.saveUser(any())).thenReturn(null);
         authRequest.setUsername("al");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
@@ -149,9 +147,9 @@ public class AuthControllerTest {
 
     @Test
     public void whenIncorrectPasswordRegisterThenBadRequest() throws Exception {
-        when(memoUsersService.getByUserName(any())).thenReturn(null);
-        when(memoUsersService.getByEmail(any())).thenReturn(null);
-        when(memoUsersService.saveUser(any())).thenReturn(null);
+        when(userService.getByUserName(any())).thenReturn(null);
+        when(userService.getByEmail(any())).thenReturn(null);
+        when(userService.saveUser(any())).thenReturn(null);
         authRequest.setPassword("   dcfvunk ");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/register")
@@ -163,8 +161,8 @@ public class AuthControllerTest {
 
     @Test
     public void signInTest() throws Exception {
-        when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
-        when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
+        when(userService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
+        when(userService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
         when(tokenService.generateJwtToken(memoUser)).thenReturn(token);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
@@ -188,8 +186,8 @@ public class AuthControllerTest {
 
     @Test
     public void whenEmailOrUserNameIsIncorrectSignInThenUnauthorized() throws Exception {
-        when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(null);
-        when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(null);
+        when(userService.getByUserName(memoUser.getUserName())).thenReturn(null);
+        when(userService.getByEmail(memoUser.getEmail())).thenReturn(null);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -200,8 +198,8 @@ public class AuthControllerTest {
 
     @Test
     public void whenPasswordIsIncorrectSignInThenUnauthorized() throws Exception {
-        when(memoUsersService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
-        when(memoUsersService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
+        when(userService.getByUserName(memoUser.getUserName())).thenReturn(memoUser);
+        when(userService.getByEmail(memoUser.getEmail())).thenReturn(memoUser);
         authRequest.setPassword("incorrectPassword");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/signIn")
@@ -239,7 +237,7 @@ public class AuthControllerTest {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
         when(tokenService.extractUserIdFromToken(token)).thenReturn(memoUser.getId());
-        when(memoUsersService.getUserNameById(memoUser.getId())).thenReturn(memoUser.getUserName());
+        when(userService.getUserNameById(memoUser.getId())).thenReturn(memoUser.getUserName());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/getUserInfo")
                 .header("Authorization", "Bearer " + token))

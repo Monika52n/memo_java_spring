@@ -1,8 +1,7 @@
 package com.memo.game.service;
 
-import com.memo.game.entity.MemoUsers;
+import com.memo.game.entity.MemoUser;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -22,7 +21,7 @@ public class TokenServiceTest {
     @Mock
     private static TokenBlacklistService tokenBlacklistService;
 
-    private static final MemoUsers memoUsers = new MemoUsers(
+    private static final MemoUser MEMO_USER = new MemoUser(
             "name01",
             "name01@gmail.com",
             "password"
@@ -32,19 +31,19 @@ public class TokenServiceTest {
     public static void setUp() {
         TokenBlacklistService tokenBlacklistService = mock(TokenBlacklistService.class);
         when(tokenBlacklistService.isBlacklisted(anyString())).thenReturn(false);
-        memoUsers.setId(UUID.randomUUID());
+        MEMO_USER.setId(UUID.randomUUID());
         tokenService = new TokenService(tokenBlacklistService);
     }
 
     @Test
     public void isTokeValidTest() {
-        String token = tokenService.generateJwtToken(memoUsers);
+        String token = tokenService.generateJwtToken(MEMO_USER);
         assertThat(tokenService.isTokenValid(token)).isTrue();
     }
 
     @Test
     public void isUserFoundTest() {
-        String token = tokenService.generateJwtToken(memoUsers);
-        assertThat(tokenService.extractUserIdFromToken(token)).isEqualTo(memoUsers.getId());
+        String token = tokenService.generateJwtToken(MEMO_USER);
+        assertThat(tokenService.extractUserIdFromToken(token)).isEqualTo(MEMO_USER.getId());
     }
 }
