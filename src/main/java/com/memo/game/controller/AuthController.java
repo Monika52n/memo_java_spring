@@ -1,7 +1,7 @@
 package com.memo.game.controller;
 
 import com.memo.game.dto.AuthRequest;
-import com.memo.game.entity.MemoUsers;
+import com.memo.game.entity.MemoUser;
 import com.memo.game.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -20,13 +20,13 @@ import java.util.regex.Pattern;
 
 @RestController
 public class AuthController {
-    private final MemoUsersService gameService;
+    private final UserService gameService;
     private final TokenService tokenService;
     private final TokenBlacklistService tokenBlacklistService;
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
-    public AuthController(MemoUsersService gameService, TokenService tokenService,
-                            TokenBlacklistService tokenBlacklistService) {
+    public AuthController(UserService gameService, TokenService tokenService,
+                          TokenBlacklistService tokenBlacklistService) {
         this.gameService=gameService;
         this.tokenService=tokenService;
         this.tokenBlacklistService = tokenBlacklistService;
@@ -60,7 +60,7 @@ public class AuthController {
         Matcher matcher = pattern.matcher(email);
         if(matcher.matches()) {
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-            MemoUsers memoUser = new MemoUsers(userName, email, hashedPassword);
+            MemoUser memoUser = new MemoUser(userName, email, hashedPassword);
             gameService.saveUser(memoUser);
             return ResponseEntity.ok().build();
         } else {
@@ -71,7 +71,7 @@ public class AuthController {
     @PostMapping("/api/signIn")
     public ResponseEntity<?> signIn(@RequestBody AuthRequest signInRequest) {
         UUID userId = null;
-        MemoUsers user = null;
+        MemoUser user = null;
 
         if((signInRequest.getEmail()==null && signInRequest.getUsername()==null) ||
             signInRequest.getPassword()==null) {

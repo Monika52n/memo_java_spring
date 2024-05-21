@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class MemoSingleGameService implements GameSaver {
+public class SinglePlayerService implements GameSaver {
     private final List<SinglePlayer> plays = new ArrayList<SinglePlayer>();
     private final Map<UUID, UUID> playsWithUsers= new HashMap<UUID, UUID>();
     private final MemoSingleGameRepository gameRepository;
 
     @Autowired
-    public MemoSingleGameService(MemoSingleGameRepository gameRepository) {
+    public SinglePlayerService(MemoSingleGameRepository gameRepository) {
         this.gameRepository = gameRepository;
     }
 

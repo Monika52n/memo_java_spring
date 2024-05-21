@@ -45,13 +45,13 @@ public class MessageControllerTest {
     public static void setUp() {
         TokenService tokenService = mock(TokenService.class);
         TokenBlacklistService tokenBlacklistService = mock(TokenBlacklistService.class);
-        MemoUsersService memoUsersService = mock(MemoUsersService.class);
+        UserService userService = mock(UserService.class);
         multiPlayerService = mock(MultiPlayerService.class);
 
         messageController = new MessageController();
         tokenService.setTokenBlacklistService(tokenBlacklistService);
         messageController.setTokenService(tokenService);
-        messageController.setMemoUsersService(memoUsersService);
+        messageController.setMemoUsersService(userService);
         messageController.setMultiPlayerService(multiPlayerService);
 
         when(tokenBlacklistService.isBlacklisted(any())).thenReturn(false);
@@ -63,8 +63,8 @@ public class MessageControllerTest {
         when(tokenService.extractUserIdFromToken(token)).thenReturn(playerId1);
         when(tokenService.extractUserIdFromToken(token2)).thenReturn(playerId2);
         when(tokenService.extractUserIdFromToken(noUserToken)).thenReturn(null);
-        when(memoUsersService.getUserNameById(playerId1)).thenReturn("name1");
-        when(memoUsersService.getUserNameById(playerId2)).thenReturn("name2");
+        when(userService.getUserNameById(playerId1)).thenReturn("name1");
+        when(userService.getUserNameById(playerId2)).thenReturn("name2");
         doNothing().when(multiPlayerService).saveGame(any());
         doNothing().when(multiPlayerService).removeGame(any());
     }

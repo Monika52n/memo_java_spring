@@ -1,9 +1,8 @@
 package com.memo.game.service;
 
 import com.memo.game.entity.MemoSingleGame;
-import com.memo.game.entity.ModeStat;
+import com.memo.game.dto.ModeStat;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -15,8 +14,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
-public class SinglePlayerCreateStatServiceTest {
-    private SinglePlayerCreateStatService singlePlayerCreateStatService;
+public class SinglePlayerStatServiceTest {
+    private SinglePlayerStatService singlePlayerStatService;
     private static List<MemoSingleGame> gameList = new ArrayList<>();
 
     private static int switchPairs(int pairs) {
@@ -50,8 +49,8 @@ public class SinglePlayerCreateStatServiceTest {
 
     @Test
     public void isGameModesHaveACorrectLength() {
-        singlePlayerCreateStatService = new SinglePlayerCreateStatService();
-        List<ModeStat> modeStats = singlePlayerCreateStatService.addList(gameList);
+        singlePlayerStatService = new SinglePlayerStatService();
+        List<ModeStat> modeStats = singlePlayerStatService.addList(gameList);
 
         assertThat(modeStats.size()).isEqualTo(6);
         ModeStat modeStat1 = modeStats.get(0);
@@ -59,8 +58,8 @@ public class SinglePlayerCreateStatServiceTest {
 
     @Test
     public void isMode1StatsCorrect() {
-        singlePlayerCreateStatService = new SinglePlayerCreateStatService();
-        List<ModeStat> modeStats = singlePlayerCreateStatService.addList(gameList);
+        singlePlayerStatService = new SinglePlayerStatService();
+        List<ModeStat> modeStats = singlePlayerStatService.addList(gameList);
         ModeStat modeStat1 = modeStats.get(0);
 
         assertThat(modeStat1.getNumOfGames()).isEqualTo(24);
@@ -74,8 +73,8 @@ public class SinglePlayerCreateStatServiceTest {
 
     @Test
     public void isMode2StatsCorrect() {
-        singlePlayerCreateStatService = new SinglePlayerCreateStatService();
-        List<ModeStat> modeStats = singlePlayerCreateStatService.addList(gameList);
+        singlePlayerStatService = new SinglePlayerStatService();
+        List<ModeStat> modeStats = singlePlayerStatService.addList(gameList);
         ModeStat modeStat2 = modeStats.get(1);
 
         assertThat(modeStat2.getNumOfGames()).isEqualTo(24);
@@ -89,8 +88,8 @@ public class SinglePlayerCreateStatServiceTest {
 
     @Test
     public void isMode3StatsCorrect() {
-        singlePlayerCreateStatService = new SinglePlayerCreateStatService();
-        List<ModeStat> modeStats = singlePlayerCreateStatService.addList(gameList);
+        singlePlayerStatService = new SinglePlayerStatService();
+        List<ModeStat> modeStats = singlePlayerStatService.addList(gameList);
         ModeStat modeStat3 = modeStats.get(2);
 
         assertThat(modeStat3.getNumOfGames()).isEqualTo(24);

@@ -73,9 +73,9 @@ public abstract class MemoGame {
             if (firstCardIndex == -1) {
                 map.put(index, getFirstCard(index));
             } else {
-                Tuple<Integer, Integer> values = getSecondAndFirstCard(index);
-                map.put(firstCardIndex, values.getFirst());
-                map.put(index, values.getSecond());
+                AbstractMap.SimpleEntry<Integer, Integer> values = getSecondAndFirstCard(index);
+                map.put(firstCardIndex, values.getKey());
+                map.put(index, values.getValue());
                 firstCardIndex = -1;
             }
             gameEnded();
@@ -97,7 +97,7 @@ public abstract class MemoGame {
         return cards;
     }
 
-    private Tuple<Integer, Integer> getSecondAndFirstCard(int index2) {
+    private AbstractMap.SimpleEntry<Integer, Integer> getSecondAndFirstCard(int index2) {
         if(board[firstCardIndex]==board[index2]) {
             isGuessedBoard[firstCardIndex] = true;
             isGuessedBoard[index2] = true;
@@ -105,7 +105,7 @@ public abstract class MemoGame {
         } else {
             arePreviousCardsequal=false;
         }
-        return (new Tuple<Integer, Integer>(board[firstCardIndex], board[index2]));
+        return (new AbstractMap.SimpleEntry(board[firstCardIndex], board[index2]));
     }
 
     protected abstract void gameEnded();
