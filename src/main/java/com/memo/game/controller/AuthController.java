@@ -18,6 +18,12 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * REST controller for handling user authentication and authorization.
+ * Manages HTTP requests related to user authentication, such as user sign-in, registration,
+ * token generation, and user information retrieval.
+ * Facilitates secure access to application resources and user account management.
+ */
 @RestController
 public class AuthController {
     private final UserService gameService;
@@ -32,6 +38,19 @@ public class AuthController {
         this.tokenBlacklistService = tokenBlacklistService;
     }
 
+    /**
+     * Registers a new user.
+     *
+     * This method handles a request to register a new user with the provided email, username, and password.
+     * It validates the request data, ensuring that all required fields are provided and meet certain criteria.
+     * If the request data is valid, it checks if the email and username are unique. If not, it returns an error message.
+     * If the data is unique and meets the required criteria, it hashes the password, creates a new user object,
+     * and saves it to the database.
+     *
+     * @param registerRequest the request body containing the email, username, and password of the user to register
+     * @return a ResponseEntity indicating the outcome of the registration attempt, with an OK status if successful
+     *         or a bad request status with an error message if the request data is incorrect or the email/username already exists
+     */
     @PostMapping("/api/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest registerRequest) {
         Map<String, Object> responseMap = new HashMap<>();
@@ -68,6 +87,19 @@ public class AuthController {
         }
     }
 
+    /**
+     * Authenticates a user and generates a JWT token for authorization.
+     *
+     * This method handles a request to authenticate a user using their email or username and password.
+     * It validates the request data, ensuring that either the email or username and the password are provided.
+     * If the request data is valid, it checks if the user exists based on the provided email or username.
+     * If the user exists, it verifies the password using bcrypt hashing.
+     * If the password is correct, it generates a JWT token for the user and returns it.
+     *
+     * @param signInRequest the request body containing the email or username and password of the user to authenticate
+     * @return a ResponseEntity containing a JWT token if authentication is successful,
+     *         or an unauthorized status with an error message if the request data is incorrect or authentication fails
+     */
     @PostMapping("/api/signIn")
     public ResponseEntity<?> signIn(@RequestBody AuthRequest signInRequest) {
         UUID userId = null;
@@ -96,6 +128,18 @@ public class AuthController {
         }
     }
 
+    /**
+     * Retrieves user information based on the provided JWT token.
+     *
+     * This method handles a request to fetch user information such as user ID and username based on the provided JWT token.
+     * It extracts the token from the request, validates it, and then extracts the user ID from the token.
+     * If the token is valid and the user ID is successfully extracted, it retrieves the username associated with the user ID.
+     * It then constructs a response containing the user ID and username and returns it.
+     *
+     * @param request the HTTP request containing the JWT token
+     * @return a ResponseEntity containing the user information (user ID and username) if the token is valid,
+     *         or an unauthorized status with an error message if the token is invalid or the user ID cannot be extracted
+     */
     @PostMapping("api/getUserInfo")
     public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
         String token = tokenService.extractTokenFromRequest(request);
