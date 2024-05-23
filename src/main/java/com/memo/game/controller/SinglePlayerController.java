@@ -2,7 +2,7 @@ package com.memo.game.controller;
 
 import com.memo.game.dto.IndexRequest;
 import com.memo.game.dto.StartSinglePlayerRequest;
-import com.memo.game.model.SinglePlayer;
+import com.memo.game.gameModel.SinglePlayer;
 import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ * REST controller for managing single-player game sessions.
+ * Handles HTTP requests related to single-player games, such as starting a new game, retrieving game status,
+ * and interacting with the game board.
+ * Enables communication with the front end, allowing players to play single-player memory matching games.
+ */
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 public class SinglePlayerController {
@@ -24,6 +30,19 @@ public class SinglePlayerController {
         this.singlePlayerService = singlePlayerService;
         this.tokenService = tokenService;
     }
+
+    /**
+     * Starts a new single-player game session.
+     *
+     * This method handles a request to start a single-player game. It extracts the player's token
+     * from the request, validates it, and then initializes a new single-player game with the specified
+     * number of pairs and initial time. If the token is invalid or required parameters are missing,
+     * it returns the appropriate error response.
+     *
+     * @param request the HTTP request containing the player's token
+     * @param startSinglePlayerRequest the request body containing the initial time and number of pairs for the game
+     * @return a ResponseEntity containing the session ID of the new game or an error message if the game could not be started
+    */
     @PostMapping("/api/singlePlayer/startSinglePlayer")
     public ResponseEntity<?> startGame(HttpServletRequest request,
     @RequestBody StartSinglePlayerRequest startSinglePlayerRequest) {
@@ -53,6 +72,18 @@ public class SinglePlayerController {
         return ResponseEntity.ok(responseMap);
     }
 
+    /**
+     * Retrieves the remaining time for a single-player game session.
+     *
+     * This method handles a request to get the remaining time for a specific single-player game session.
+     * It extracts the player's token from the request, validates it, and then retrieves the game session
+     * using the provided session ID. If the session is found and the game is not over, it returns the remaining time.
+     * If the game is over, the session is removed from the list.
+     *
+     * @param request the HTTP request containing the player's token
+     * @param sessionId the ID of the game session
+     * @return a ResponseEntity containing the remaining time for the session or an error message if the session could not be found
+    */
     @PostMapping("/api/singlePlayer/getRemainingTime/{sessionId}")
     public ResponseEntity<?> getRemainingTime(HttpServletRequest request,
         @PathVariable String sessionId) {
@@ -77,8 +108,21 @@ public class SinglePlayerController {
         return ResponseEntity.ok(responseMap);
     }
 
+    /**
+     * Flips a card at the specified index in a single-player game session.
+     *
+     * This method handles a request to flip a card at a specific index for a single-player game session.
+     * It extracts the player's token from the request, validates it, and then retrieves the game session
+     * using the provided session ID. If the session is found, it flips the card at the specified index.
+     * If the game is over, the session is removed from the list.
+     *
+     * @param request the HTTP request containing the player's token
+     * @param sessionId the ID of the game session
+     * @param indexRequest the request body containing the index of the card to flip
+     * @return a ResponseEntity containing the flipped cards and game state information, or an error message if the session could not be found or the index is invalid
+     */
     @PostMapping("/api/singlePlayer/getCard/{sessionId}")
-    public ResponseEntity<?> getTwoCards(HttpServletRequest request,
+    public ResponseEntity<?> flipCard(HttpServletRequest request,
     @PathVariable String sessionId, @RequestBody IndexRequest indexRequest) {
 
         String token = tokenService.extractTokenFromRequest(request);
@@ -94,7 +138,7 @@ public class SinglePlayerController {
         int index = indexRequest.getIndex();
         Map<Integer, Integer> cards;
         try {
-            cards = singleplayer.getCard(index);
+            cards = singleplayer.flipCard(index);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
@@ -105,7 +149,7 @@ public class SinglePlayerController {
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("cards", cards);
-        responseMap.put("equals", singleplayer.getArePreviousCardsequal());
+        responseMap.put("equals", singleplayer.getArePreviousCardsEqual());
         responseMap.put("ended", singleplayer.isGameOver());
         responseMap.put("won", singleplayer.getWon());
         responseMap.put("guessedBoard", singleplayer.getGuessedBoard());
@@ -115,6 +159,18 @@ public class SinglePlayerController {
         return ResponseEntity.ok(responseMap);
     }
 
+    /**
+     * Allows a player to leave a single-player game session.
+     *
+     * This method handles a request to leave a single-player game session. It extracts the player's token
+     * from the request, validates it, and then retrieves the game session using the provided session ID.
+     * If the session is found, the player leaves the game and the session is removed from the list.
+     *
+     * @param request the HTTP request containing the player's token
+     * @param sessionId the ID of the game session
+     * @return a ResponseEntity indicating the outcome of the request, with no content if successful,
+     *         or an error message if the session could not be found
+     */
     @PostMapping("/api/singlePlayer/leaveGame/{sessionId}")
     public ResponseEntity<?> leaveGame(HttpServletRequest request,
                                               @PathVariable String sessionId) {
@@ -134,6 +190,17 @@ public class SinglePlayerController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Checks if the current play in a single-player game session is valid.
+     *
+     * This method handles a request to verify the validity of the current play for a single-player game session.
+     * It extracts the player's token from the request, validates it, and then retrieves the game session
+     * using the provided session ID. It returns the validity of the play and additional game state information if the session is valid.
+     *
+     * @param request the HTTP request containing the player's token
+     * @param sessionId the ID of the game session
+     * @return a ResponseEntity containing the validity of the play and game state information, or an error message if the token is invalid
+     */
     @PostMapping("/api/singlePlayer/isPlayValid/{sessionId}")
     public ResponseEntity<?> isPlayValid(HttpServletRequest request,
                                        @PathVariable String sessionId) {

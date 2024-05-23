@@ -1,12 +1,10 @@
-package com.memo.game.model;
+package com.memo.game.gameModel;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static java.util.Map.entry;
@@ -49,35 +47,35 @@ public class MultiPlayerTest {
     }
 
     @Test
-    void getCardThrowsIllegalArgumentExceptionWhenBothPlayersAreNull() {
+    void flipCardThrowsIllegalArgumentExceptionWhenBothPlayersAreNull() {
         MultiPlayer multiPlayer = new MultiPlayer(8, null, null);
         assertThrows(IllegalArgumentException.class, () -> {
-            multiPlayer.getCard(null, 2);
+            multiPlayer.flipCard(null, 2);
         });
     }
 
     @Test
-    void getCardThrowsIllegalArgumentExceptionWhenPlayerOneIsNull() {
+    void flipCardThrowsIllegalArgumentExceptionWhenPlayerOneIsNull() {
         MultiPlayer multiPlayer = new MultiPlayer(8, null, userId1);
         assertThrows(IllegalArgumentException.class, () -> {
-            multiPlayer.getCard(null, 2);
+            multiPlayer.flipCard(null, 2);
         });
     }
 
     @Test
-    void getCardThrowsIllegalArgumentExceptionWhenPlayerTwoIsNull() {
+    void flipCardThrowsIllegalArgumentExceptionWhenPlayerTwoIsNull() {
         MultiPlayer multiPlayer = new MultiPlayer(8, userId1, null);
         assertThrows(IllegalArgumentException.class, () -> {
-            multiPlayer.getCard(userId1, 2);
+            multiPlayer.flipCard(userId1, 2);
         });
     }
     @Test
-    void getFirstPlayerFirstCardTest() {
+    void flipFirstPlayerFirstCardTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
 
-        Map<Integer, Integer> cards = multiPlayer.getCard(userId1, 2);
+        Map<Integer, Integer> cards = multiPlayer.flipCard(userId1, 2);
         assertThat(cards).isNotNull();
         assertThat(cards.size()).isEqualTo(1);
         assertThat(cards).containsOnly(entry(2, 2));
@@ -85,14 +83,14 @@ public class MultiPlayerTest {
     }
 
     @Test
-    void getFirstPlayerSecondCardTest() {
+    void flipFirstPlayerSecondCardTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
 
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
-        multiPlayer.getCard(userId1, 2);
+        multiPlayer.flipCard(userId1, 2);
 
-        Map<Integer, Integer> cards = multiPlayer.getCard(userId1, 4);
+        Map<Integer, Integer> cards = multiPlayer.flipCard(userId1, 4);
         assertThat(cards).isNotNull();
         assertThat(cards.size()).isEqualTo(2);
         assertThat(multiPlayer.isPlayer1sTurn()).isEqualTo(false);
@@ -100,14 +98,14 @@ public class MultiPlayerTest {
     }
 
     @Test
-    void getSecondPlayerFirstCardTest() {
+    void flipSecondPlayerFirstCardTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
-        multiPlayer.getCard(userId1, 2);
-        multiPlayer.getCard(userId1, 4);
+        multiPlayer.flipCard(userId1, 2);
+        multiPlayer.flipCard(userId1, 4);
 
-        Map<Integer, Integer> cards = multiPlayer.getCard(userId2, 5);
+        Map<Integer, Integer> cards = multiPlayer.flipCard(userId2, 5);
         assertThat(cards).isNotNull();
         assertThat(cards.size()).isEqualTo(1);
         assertThat(multiPlayer.isPlayer1sTurn()).isEqualTo(false);
@@ -115,15 +113,15 @@ public class MultiPlayerTest {
     }
 
     @Test
-    void getSecondPlayerSecondCardTest() {
+    void flipSecondPlayerSecondCardTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
-        multiPlayer.getCard(userId1, 2);
-        multiPlayer.getCard(userId1, 4);
-        multiPlayer.getCard(userId2, 5);
+        multiPlayer.flipCard(userId1, 2);
+        multiPlayer.flipCard(userId1, 4);
+        multiPlayer.flipCard(userId2, 5);
 
-        Map<Integer, Integer> cards = multiPlayer.getCard(userId2, 1);
+        Map<Integer, Integer> cards = multiPlayer.flipCard(userId2, 1);
         assertThat(cards).isNotNull();
         assertThat(cards.size()).isEqualTo(2);
         assertThat(multiPlayer.isPlayer1sTurn()).isEqualTo(true);
@@ -133,27 +131,27 @@ public class MultiPlayerTest {
     @Test
     void notStartBeforeSettingIsGameStartedTrueTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
-        Map<Integer, Integer> cards1 = multiPlayer.getCard(userId1, 2);
+        Map<Integer, Integer> cards1 = multiPlayer.flipCard(userId1, 2);
         assertThat(cards1).isNotNull();
         assertThat(cards1.size()).isEqualTo(0);
     }
 
     @Test
-    void getCardsWrongTurnTest() {
+    void flipCardsWrongTurnTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
         multiPlayer.setGameStarted(true);
 
-        Map<Integer, Integer> cards2 = multiPlayer.getCard(userId2, 2);
+        Map<Integer, Integer> cards2 = multiPlayer.flipCard(userId2, 2);
         assertThat(cards2).isNotNull();
         assertThat(cards2.size()).isEqualTo(0);
     }
 
     @Test
-    void getCardsInBetweenTurnOrderTest() {
+    void flipCardsInBetweenTurnOrderTest() {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
         multiPlayer.setGameStarted(true);
-        multiPlayer.getCard(userId1, 2);
-        Map<Integer, Integer> cards3 = multiPlayer.getCard(userId2, 2);
+        multiPlayer.flipCard(userId1, 2);
+        Map<Integer, Integer> cards3 = multiPlayer.flipCard(userId2, 2);
         assertThat(cards3).isNotNull();
         assertThat(cards3.size()).isEqualTo(0);
     }
@@ -165,10 +163,10 @@ public class MultiPlayerTest {
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
         for(int i=0; i<(numOfPairs-1)*2; i=i+2) {
-            multiPlayer.getCard(userId1, i);
-            multiPlayer.getCard(userId1, i+2);
-            multiPlayer.getCard(userId2, i);
-            multiPlayer.getCard(userId2, i+1);
+            multiPlayer.flipCard(userId1, i);
+            multiPlayer.flipCard(userId1, i+2);
+            multiPlayer.flipCard(userId2, i);
+            multiPlayer.flipCard(userId2, i+1);
         }
 
         assertThat(multiPlayer.isGameOver()).isEqualTo(true);
@@ -184,26 +182,26 @@ public class MultiPlayerTest {
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
         for(int i=0; i<numOfPairs*2; ) {
-            multiPlayer.getCard(userId1, i++);
-            multiPlayer.getCard(userId1, i++);
-            multiPlayer.getCard(userId2, i++);
-            multiPlayer.getCard(userId2, i++);
+            multiPlayer.flipCard(userId1, i++);
+            multiPlayer.flipCard(userId1, i++);
+            multiPlayer.flipCard(userId2, i++);
+            multiPlayer.flipCard(userId2, i++);
         }
         assertThat(multiPlayer.isGameOver()).isEqualTo(true);
         assertThat(multiPlayer.getWinner()).isEqualTo("draw");
     }
 
     @Test
-    void getSameCardsTest() {
+    void flipSameCardsTest() {
         int numOfPairs = 8;
         multiPlayer = new MultiPlayer(numOfPairs, userId1, userId2);
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
         for(int i = 0; i<3; i++) {
-            multiPlayer.getCard(userId1,0);
-            multiPlayer.getCard(userId1,1);
-            multiPlayer.getCard(userId2,0);
-            multiPlayer.getCard(userId2,1);
+            multiPlayer.flipCard(userId1,0);
+            multiPlayer.flipCard(userId1,1);
+            multiPlayer.flipCard(userId2,0);
+            multiPlayer.flipCard(userId2,1);
         }
         assertThat(multiPlayer.getPlayer1GuessedCards()).isEqualTo(1);
         assertThat(multiPlayer.getPlayer2GuessedCards()).isEqualTo(0);
@@ -214,10 +212,10 @@ public class MultiPlayerTest {
         multiPlayer = new MultiPlayer(8, userId1, userId2);
         setBoardCardsInOrder(multiPlayer);
         multiPlayer.setGameStarted(true);
-        multiPlayer.getCard(userId1, 2);
-        multiPlayer.getCard(userId1, 4);
-        multiPlayer.getCard(userId2, 5);
-        multiPlayer.getCard(userId2, 1);
+        multiPlayer.flipCard(userId1, 2);
+        multiPlayer.flipCard(userId1, 4);
+        multiPlayer.flipCard(userId2, 5);
+        multiPlayer.flipCard(userId2, 1);
 
         multiPlayer.playerLeaves(userId1);
         assertThat(multiPlayer.isGameOver()).isTrue();

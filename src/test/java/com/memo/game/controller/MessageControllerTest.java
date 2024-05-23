@@ -3,7 +3,7 @@ package com.memo.game.controller;
 import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
-import com.memo.game.model.MultiPlayer;
+import com.memo.game.gameModel.MultiPlayer;
 import com.memo.game.service.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -294,7 +294,7 @@ public class MessageControllerTest {
     public void makeSecondMove() {
         MultiPlayer game = new MultiPlayer(8, playerId1, playerId2);
         setBoardCardsInOrder(game);
-        game.getCard(playerId1, 0);
+        game.flipCard(playerId1, 0);
         game.setGameStarted(true);
         when(multiPlayerService.getGame(eq(game.getPlayId()))).thenReturn(game);
 
@@ -383,13 +383,13 @@ public class MessageControllerTest {
         setBoardCardsInOrder(game);
         game.setGameStarted(true);
         for(int i=0; i<numOfPairs*2; i++) {
-            game.getCard(playerId1, i);
-            game.getCard(playerId1, ++i);
-            game.getCard(playerId2, ++i);
+            game.flipCard(playerId1, i);
+            game.flipCard(playerId1, ++i);
+            game.flipCard(playerId2, ++i);
             if(i==numOfPairs*2-2) {
                 break;
             }
-            game.getCard(playerId2, ++i);
+            game.flipCard(playerId2, ++i);
         }
         when(multiPlayerService.getGame(eq(game.getPlayId()))).thenReturn(game);
 

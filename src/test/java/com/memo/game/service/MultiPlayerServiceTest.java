@@ -1,6 +1,6 @@
 package com.memo.game.service;
 
-import com.memo.game.model.MultiPlayer;
+import com.memo.game.gameModel.MultiPlayer;
 import com.memo.game.repo.MemoMultiGameRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;

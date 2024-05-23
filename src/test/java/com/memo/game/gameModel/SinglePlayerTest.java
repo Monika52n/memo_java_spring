@@ -1,4 +1,4 @@
-package com.memo.game.model;
+package com.memo.game.gameModel;
 
 import com.memo.game.service.SinglePlayerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -65,39 +65,39 @@ public class SinglePlayerTest {
     }
 
     @Test
-    void getFirstCardTest() {
+    void flipFirstCardTest() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
 
-        Map<Integer, Integer> cards = singlePlayer.getCard(3);
+        Map<Integer, Integer> cards = singlePlayer.flipCard(3);
         assertThat(cards).isNotNull();
         assertThat(cards.size()).isEqualTo(1);
         assertThat(cards).containsOnly(entry(3,2));
     }
 
     @Test
-    void getSecondCardTest() {
+    void flipSecondCardTest() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
-        singlePlayer.getCard(3);
+        singlePlayer.flipCard(3);
 
-        Map<Integer, Integer> cards = singlePlayer.getCard(0);
+        Map<Integer, Integer> cards = singlePlayer.flipCard(0);
         assertThat(cards).isNotNull();
         assertThat(cards.size()).isEqualTo(2);
         assertThat(cards).containsOnly(entry(3,2), entry(0,1));
     }
 
     @Test
-    void getArePreviousCardsEqualTest() {
+    void flipArePreviousCardsEqualTest() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
 
-        singlePlayer.getCard(0);
-        singlePlayer.getCard(1);
-        assertThat(singlePlayer.getArePreviousCardsequal()).isEqualTo(true);
-        singlePlayer.getCard(2);
-        singlePlayer.getCard(4);
-        assertThat(singlePlayer.getArePreviousCardsequal()).isEqualTo(false);
+        singlePlayer.flipCard(0);
+        singlePlayer.flipCard(1);
+        assertThat(singlePlayer.getArePreviousCardsEqual()).isEqualTo(true);
+        singlePlayer.flipCard(2);
+        singlePlayer.flipCard(4);
+        assertThat(singlePlayer.getArePreviousCardsEqual()).isEqualTo(false);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class SinglePlayerTest {
         setBoardCardsInOrder(singlePlayer);
 
         for(int i =0; i<numberOfPairs*2; i++) {
-            singlePlayer.getCard(i);
+            singlePlayer.flipCard(i);
         }
 
         assertThat(singlePlayer.isGameOver()).isEqualTo(true);
@@ -115,33 +115,33 @@ public class SinglePlayerTest {
     }
 
     @Test
-    void getCardThrowsArrayIndexOutOfBoundsExceptionWhenIncorrectIndex() {
+    void flipCardThrowsArrayIndexOutOfBoundsExceptionWhenIncorrectIndex() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
 
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
-            singlePlayer.getCard(-1);
+            singlePlayer.flipCard(-1);
         });
         assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
-            singlePlayer.getCard(16);
+            singlePlayer.flipCard(16);
         });
     }
 
     @Test
-    void getCardThrowsIllegalArgumentExceptionWhenSameCard() {
+    void flipCardThrowsIllegalArgumentExceptionWhenSameCard() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
-        singlePlayer.getCard(0);
+        singlePlayer.flipCard(0);
         assertThrows(IllegalArgumentException.class, () -> {
-            singlePlayer.getCard(0);
+            singlePlayer.flipCard(0);
         });
     }
 
     @Test
-    void getCardGettingSamePairs() {
+    void flipCardGettingSamePairs() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
         setBoardCardsInOrder(singlePlayer);
         for(int i = 0; i<3; i++) {
-            singlePlayer.getCard(0);
-            singlePlayer.getCard(1);
+            singlePlayer.flipCard(0);
+            singlePlayer.flipCard(1);
         }
         assertThat(singlePlayer.getNumOfGuessedPairs()).isEqualTo(1);
     }
@@ -155,7 +155,7 @@ public class SinglePlayerTest {
     @Test
     void leaveGameTest() {
         singlePlayer = new SinglePlayer(8,120, singlePlayerService);
-        singlePlayer.getCard(0);
+        singlePlayer.flipCard(0);
         singlePlayer.leaveGame();
         assertThat(singlePlayer.isGameOver()).isTrue();
         assertThat(singlePlayer.getTimeRemaining()).isEqualTo(0);

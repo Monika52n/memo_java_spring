@@ -3,7 +3,7 @@ package com.memo.game.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.memo.game.dto.IndexRequest;
 import com.memo.game.dto.StartSinglePlayerRequest;
-import com.memo.game.model.SinglePlayer;
+import com.memo.game.gameModel.SinglePlayer;
 import com.memo.game.service.SinglePlayerService;
 import com.memo.game.service.TokenBlacklistService;
 import com.memo.game.service.TokenService;
@@ -137,7 +137,7 @@ public class SinglePlayerControllerTest {
     }
 
     @Test
-    public void getCardsTest() throws Exception {
+    public void flipCardTest() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
         when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);
@@ -159,7 +159,7 @@ public class SinglePlayerControllerTest {
     }
 
     @Test
-    public void getCardWhenInvalidRequestThenBadRequestResponse() throws Exception {
+    public void flipCardWhenInvalidRequestThenBadRequestResponse() throws Exception {
         when(tokenService.extractTokenFromRequest(any(HttpServletRequest.class))).thenReturn(token);
         when(tokenService.isTokenValid(token)).thenReturn(true);
         when(singlePlayerService.getSinglePlayerByGameIdFromList(any(UUID.class))).thenReturn(singlePlayer);

@@ -3,7 +3,7 @@ package com.memo.game.controller;
 import com.memo.game.dto.JoinMessage;
 import com.memo.game.dto.MultiPlayerMessage;
 import com.memo.game.dto.PlayerMessage;
-import com.memo.game.model.MultiPlayer;
+import com.memo.game.gameModel.MultiPlayer;
 import com.memo.game.service.UserService;
 import com.memo.game.service.MultiPlayerService;
 import com.memo.game.service.TokenService;
@@ -23,9 +23,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Controller class for handling WebSocket messages and managing the Tic-Tac-Toe games.
- *
- * @author Joabson Arley do Nascimento
+ * Controller class for managing WebSocket messages and multiplayer games.
+ * Handles WebSocket communication between clients for real-time multiplayer game interactions,
+ * such as game moves, and game state updates.
+ * Manages multiplayer game sessions, including game initialization, player connections,
+ * and game termination.
  */
 @Controller
 public class MessageController {
@@ -39,20 +41,15 @@ public class MessageController {
     private TokenService tokenService;
     @Autowired
     private UserService userService;
-
-    /**
-     * Manager for the Tic-Tac-Toe games.
-     */
     @Autowired
     private MultiPlayerService multiPlayerService;
 
     /**
-     * Handles a request from a client to join a Tic-Tac-Toe game.
-     * If a game is available and the player is successfully added to the game,
-     * the current state of the game is sent to all subscribers of the game's topic.
+     * Creates an error message to be sent to clients over WebSocket in case of errors during multiplayer game interactions.
      *
-     * @param message the message from the client containing the player's name
-     * @return the current state of the game, or an error message if the player was unable to join
+     * @param content   The content of the error message.
+     * @param playerId  The UUID of the player associated with the error, if applicable.
+     * @return The MultiPlayerMessage representing the error message.
      */
     private MultiPlayerMessage createErrorMessage(String content, UUID playerId) {
         MultiPlayerMessage responseMessage = new MultiPlayerMessage(userService);
@@ -61,6 +58,16 @@ public class MessageController {
         responseMessage.setPlayer1(playerId);
         return responseMessage;
     }
+
+    /**
+     * Handles a request from a client to join a MultiPlayer game.
+     * If a game is available and the player is successfully added to the game,
+     * the current state of the game is sent to all subscribers of the game's topic.
+     *
+     * @param message the message from the client containing the player's token, number of pairs for the game,
+     *                and weather the player wants to play with a friend, and the code of their friend's game
+     * @return the current state of the game, or an error message if the player was unable to join
+     */
     @MessageMapping("/game.join")
     @SendTo("/topic/game.state")
     public MultiPlayerMessage joinGame(@Payload JoinMessage message, SimpMessageHeaderAccessor headerAccessor) {
@@ -109,11 +116,11 @@ public class MessageController {
     }
 
     /**
-     * Handles a request from a client to leave a Tic-Tac-Toe game.
+     * Handles a request from a client to leave a MultiPlayer game.
      * If the player is successfully removed from the game, a message is sent to subscribers
      * of the game's topic indicating that the player has left.
      *
-     * @param message the message from the client containing the player's name
+     * @param message the message from the client containing the player's token
      */
     @MessageMapping("/game.leave")
     public void leaveGame(@Payload PlayerMessage message) {
@@ -127,11 +134,11 @@ public class MessageController {
     }
 
     /**
-     * Handles a request from a client to make a move in a Tic-Tac-Toe game.
+     * Handles a request from a client to make a move in a MultiPlayer game.
      * If the move is valid, the game state is updated and sent to all subscribers of the game's topic.
      * If the game is over, a message is sent indicating the result of the game.
      *
-     * @param message the message from the client containing the player's name, game ID, and move
+     * @param message the message from the client containing the player's token, game ID, and index of the card
      */
     @MessageMapping("/game.move")
     public void makeMove(@Payload MultiPlayerMessage message) {
@@ -169,7 +176,7 @@ public class MessageController {
 
         Map<Integer, Integer> lastMove = new HashMap<>();
         try {
-            lastMove = game.getCard(player, index);
+            lastMove = game.flipCard(player, index);
         } catch (Exception e) {
             this.messagingTemplate.convertAndSend("/topic/game." + gameId,
                     createErrorMessage("Incorrect params", player));
@@ -188,6 +195,15 @@ public class MessageController {
         this.messagingTemplate.convertAndSend("/topic/game." + gameId, gameStateMessage);
     }
 
+    /**
+     * Listens for WebSocket session disconnect events. When a player disconnects from a game session,
+     * this method handles the cleanup process for the associated multiplayer game. It retrieves the game ID
+     * and player UUID from the session attributes, obtains the corresponding multiplayer game from the
+     * {@code MultiPlayerService}, removes the disconnected player from the game, sends a game over message
+     * to all subscribers of the game's topic, and finally removes the game from the service.
+     *
+     * @param event The event indicating that a WebSocket session has been disconnected.
+     */
     @EventListener
     public void SessionDisconnectEvent(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
@@ -204,6 +220,13 @@ public class MessageController {
         }
     }
 
+    /**
+     * Converts a MultiPlayer game object into a MultiPlayerMessage object for sending game state updates
+     * and information to clients over WebSocket.
+     *
+     * @param game The MultiPlayer game object to be converted into a message.
+     * @return The MultiPlayerMessage containing the game state and information.
+     */
     private MultiPlayerMessage gameToMessage(MultiPlayer game) {
         MultiPlayerMessage message = new MultiPlayerMessage(userService);
         message.setGameId(game.getPlayId());
