@@ -1,7 +1,5 @@
 package com.memo.game.dto;
 
-import java.util.UUID;
-
 public class PlayerMessage {
     private String token;
 
