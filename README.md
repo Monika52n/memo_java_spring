@@ -33,6 +33,7 @@ The Echoes of Memory application is structured using the Model-View-Controller (
   - `MultiPlayer`
 
 ### Service Layer
+- **Implemented in:** `memo-java-spring-app`
 - **Location:** `src/main/java/com/memo/game/service`
 - **Key Services:**
   - `UserService`: Manages user operations.
@@ -44,6 +45,7 @@ The Echoes of Memory application is structured using the Model-View-Controller (
   - `TokenBlackListService`: Manages blacklisted tokens.
 
 ### Controller Layer
+- **Implemented in:** `memo-java-spring-app`
 - **Location:** `src/main/java/com/memo/game/controller`
 - **Key Controllers:**
   - `AuthController`: Handles authentication and user management.
@@ -95,7 +97,7 @@ The application can run on a local server (personal computer) or a web server.
 ### Database:
 - PostgreSQL 16.0 or newer
 
-Recommended: At least 1 GB of RAM and 1 GB of free disk space. Compatible with Windows, Linux, or Mac operating systems for local installation. Requires an internet browser (e.g., Mozilla Firefox, Google Chrome, Opera, Microsoft Edge).
+Recommended: At least 1 GB of RAM and 1 GB of free disk space. Compatible with Windows, Linux, or Mac operating systems for local installation.
 
 ## Installation
 
@@ -105,50 +107,43 @@ Recommended: At least 1 GB of RAM and 1 GB of free disk space. Compatible with W
 
 1. **Java Development Kit (JDK)**
    - Download from Oracle JDK or AdoptOpenJDK and follow the installation instructions. Ensure Java is added to the system environment variables. Verify the installation with:
-   ```bash
+   ```powershell
    java -version
    ```
 
-2. **Node.js and npm**
-   - Download from the Node.js website and follow the installation instructions. Verify the installation with:
-   ```bash
-   node -v
-   npm -v
-   ```
-
-3. **PostgreSQL Database**
+2. **PostgreSQL Database**
    - Download from the PostgreSQL website and follow the installation instructions. Verify the installation with:
-   ```bash
-   psql --version
+   ```powershell
+   psql -version
    ```
 
 #### PostgreSQL Database Setup
 
 1. Open the PostgreSQL application (e.g., DbBeaver) and start the PostgreSQL service. Create a database and user with:
-  ```sql
-  CREATE DATABASE yourdatabase;
-  CREATE USER yourusername WITH ENCRYPTED PASSWORD 'yourpassword';
-  GRANT ALL PRIVILEGES ON DATABASE yourdatabase TO yourusername;
-  ```
+    ```sql
+    CREATE DATABASE yourdatabase;
+    CREATE USER yourusername WITH ENCRYPTED PASSWORD 'yourpassword';
+    GRANT ALL PRIVILEGES ON DATABASE yourdatabase TO yourusername;
+    ```
 #### Backend Setup (Spring Boot)
 
 1. Install dependencies with:
-  ```bash
-  gradlew.bat build
-  ```
+      ```powershell
+      gradlew.bat build
+      ```
 
 2. Configure application.properties or application.yml:
-  ```properties
-  spring.datasource.url=jdbc:postgresql://localhost:5432/yourdatabase
-  spring.datasource.username=yourusername
-  spring.datasource.password=yourpassword
-  ```
+    ```properties
+    spring.datasource.url=jdbc:postgresql://localhost:5432/yourdatabase
+    spring.datasource.username=yourusername
+    spring.datasource.password=yourpassword
+    ```
 ## Run the application:
-
-  ```bash
+  ```powershell
   gradlew.bat bootRun
   ```
-For the first run, use:
-  ```bash
-  gradlew.bat bootRun --args="init-db"
-  ```
+    
+- For the first run, use:
+    ```powershell
+    gradlew.bat bootRun --args="init-db"
+    ```
