@@ -1,13 +1,14 @@
 # Echoes of Memory
 
 ## Description
-Echoes of Memory is a web-based memory game designed to enhance memory skills. The game involves flipping over pairs of cards, with the objective to find all matching pairs. Users need to register with their email, username, and password before playing.
+The Echoes of Memory backend is a server-side application developed using Java and Spring Boot, designed to support a web-based memory game. It provides essential services such as user authentication, game management, and statistics tracking for both single-player and multiplayer modes.
 
-The game offers:
-- **Single-player mode:** 6 difficulty levels with different time limits.
-- **Multiplayer mode:** 3 difficulty levels, where players take turns and the one with more matched pairs wins.
+## Key features
 
-Players can also view their game statistics and rankings.
+- User Management: Registration, authentication, and user information retrieval.
+- Single-player Game Management: Starting new games, managing game sessions, and tracking game progress.
+- Multiplayer Game Management: Handling real-time interactions, managing game sessions, and tracking player turns and scores.
+- Statistics and Rankings: Providing detailed statistics for single-player games and rankings for multiplayer games.
 
 ## Application Structure
 
