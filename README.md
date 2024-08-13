@@ -14,7 +14,7 @@ This repository contains the backend service of the Echoes of Memory project, a 
 The Echoes of Memory project is structured using the Model-View-Controller (MVC) architecture with an additional service layer. Below is an overview of each layer:
 
 ### View Layer
-- **Implemented in:** [memo-react-app](https://github.com/Monika52n/memo_react).
+- **Implemented in:** [memo-react-app](https://github.com/Monika52n/memo_react)
 - **Responsibility:** Handles the user interface and interactions.
 
 ### Model Layer
