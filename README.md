@@ -1,6 +1,10 @@
 # Echoes of Memory - Backend 
 
-This repository contains the backend service of the Echoes of Memory project, a web-based memory game. This backend, developed using Java and Spring Boot, provides essential services such as user authentication, game management, and statistics tracking for both single-player and multiplayer modes. **Note:** This backend is designed to work in tandem with the Echoes of Memory frontend, which is available in a separate repository [memo-react-app](https://github.com/Monika52n/memo_react).
+**Note:** This backend is designed to work in tandem with the Echoes of Memory frontend, which is available in a separate repository [memo-react-app](https://github.com/Monika52n/memo_react).
+
+## Description
+
+This repository contains the backend service of the Echoes of Memory project, a web-based memory game. This backend, developed using Java and Spring Boot, provides essential services such as user authentication, game management, and statistics tracking for both single-player and multiplayer modes. 
 
 ## Key features
 
